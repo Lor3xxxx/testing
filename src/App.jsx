@@ -92,7 +92,7 @@ function ProductPage({ product, onBack, onBook }) {
   const todayStr = new Date().toISOString().split('T')[0];
 
   return (
-    <div className="min-h-screen bg-surface pb-28">
+    <div className="min-h-screen bg-surface pb-24">
       {/* Header with image */}
       <div className="relative h-72 rounded-b-[2rem] overflow-hidden shadow-sm">
         <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
@@ -195,7 +195,7 @@ function ProductPage({ product, onBack, onBook }) {
       {activeModal && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center px-6" onClick={() => setActiveModal(null)}>
           {/* Glass background */}
-          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md transition-opacity"></div>
+          <div className="absolute inset-0 bg-slate-900/20 backdrop-blur-md transition-opacity"></div>
           {/* Glass card modal */}
           <div 
             className="relative w-full max-w-sm glass-card border flex flex-col border-white/20 rounded-[2rem] p-6 shadow-2xl"
