@@ -394,13 +394,13 @@ function ProductPage({ product, onBack, onBook }) {
         </div>
 
         {/* Totals Block */}
-        <div className="flex items-center pt-2 pb-6">
-           <div className="flex-1">
+        <div className="grid grid-cols-2 gap-5 pt-2 pb-6">
+           <div className="relative">
               <div className="text-[10px] font-bold text-[#647b97] uppercase tracking-widest mb-1.5">Дни</div>
               <div className="text-[22px] font-extrabold text-slate-900 leading-none">{days} <span className="text-[16px] font-bold">суток</span></div>
            </div>
-           <div className="w-[1px] h-10 bg-slate-200 mx-5"></div>
-           <div className="flex-[1.5]">
+           <div className="relative">
+              <div className="absolute -left-2.5 top-0 bottom-0 w-[1px] bg-slate-200"></div>
               <div className="text-[10px] font-bold text-[#647b97] uppercase tracking-widest mb-1.5">Итого к оплате</div>
               <div className="text-[24px] font-extrabold text-[#0d6978] leading-none">{days * product.price_per_day} <span className="text-[15px] font-extrabold uppercase">сом</span></div>
            </div>
