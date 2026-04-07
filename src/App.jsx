@@ -92,7 +92,7 @@ function ProductPage({ product, onBack, onBook }) {
   const todayStr = new Date().toISOString().split('T')[0];
 
   return (
-    <div className="min-h-[100dvh] bg-surface pb-28">
+    <div className="min-h-[100dvh] bg-surface pb-28 animate-slide-up">
       {/* Header with image */}
       <div className="relative h-72 rounded-b-[2rem] overflow-hidden shadow-sm">
         <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
@@ -195,11 +195,11 @@ function ProductPage({ product, onBack, onBook }) {
       {activeModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center px-6" onClick={() => setActiveModal(null)}>
           {/* Darkened Backdrop */}
-          <div className="absolute inset-0 bg-slate-900/60 transition-opacity"></div>
+          <div className="absolute inset-0 bg-slate-900/60 transition-opacity animate-fade-in"></div>
           
           {/* Solid White Card Modal */}
           <div 
-            className="relative w-full max-w-sm bg-surface-container-lowest rounded-[2rem] p-6 transition-all transform animate-in fade-in zoom-in-95 duration-300 shadow-[0_20px_40px_rgba(0,0,0,0.5)]"
+            className="relative w-full max-w-sm bg-surface-container-lowest rounded-[2rem] p-6 transition-all animate-zoom-in shadow-[0_20px_40px_rgba(0,0,0,0.5)]"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-6">
@@ -339,7 +339,7 @@ export default function App() {
         </section>
 
         {/* Categories Horizontal Scroll */}
-        <section className="mt-8 -mx-4">
+        <section className="mt-8 -mx-4 animate-fade-in">
           <div className="flex overflow-x-auto px-4 gap-3 no-scrollbar">
             {CATEGORIES.map((cat) => (
               <button
@@ -358,7 +358,7 @@ export default function App() {
         </section>
 
         {/* Gear Grid */}
-        <section className="mt-10 grid grid-cols-2 gap-4 pb-28">
+        <section className="mt-10 grid grid-cols-2 gap-4 pb-28 animate-slide-up">
           {isLoading ? (
             // Skeleton Loading State
             [1, 2, 3, 4].map((n) => (
