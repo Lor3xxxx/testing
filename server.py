@@ -62,6 +62,29 @@ MOCK_GEAR = [
     }
 ]
 
+from pydantic import BaseModel
+import uuid
+import datetime
+
+class OrderCreate(BaseModel):
+    user_id: str
+    item_id: int
+    start_date: str
+    end_date: str
+    total_price: int
+    payment_method: str
+
+orders_db = []
+
+@app.post("/api/orders")
+async def create_order(order: OrderCreate):
+    new_order = order.model_dump()
+    new_order["id"] = str(uuid.uuid4())
+    new_order["status"] = "active"
+    new_order["created_at"] = datetime.datetime.now().isoformat()
+    orders_db.append(new_order)
+    return new_order
+    
 @app.get("/api/gear")
 async def get_gear(category: str = "Все", search: str = ""):
     filtered = MOCK_GEAR

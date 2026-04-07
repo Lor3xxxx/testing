@@ -65,6 +65,131 @@ const FALLBACK_GEAR = [
   }
 ];
 
+function CheckoutPage({ checkoutData, onBack, onConfirm }) {
+  const [paymentMethod, setPaymentMethod] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const methods = ['MBank', 'O!Bank', 'Наличные при получении'];
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    try {
+      const user_id = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || "test_user_123";
+      
+      const payload = {
+        user_id: user_id,
+        item_id: checkoutData.id,
+        start_date: checkoutData.startDate,
+        end_date: checkoutData.endDate,
+        total_price: checkoutData.total,
+        payment_method: paymentMethod
+      };
+
+      const response = await fetch('http://localhost:8000/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+      
+      if (!response.ok) {
+         throw new Error("Failed to create order");
+      }
+      
+      const data = await response.json();
+      onConfirm(data);
+    } catch (error) {
+      console.error(error);
+      onConfirm({
+        user_id: "test_user_123",
+        item_id: checkoutData.id,
+        start_date: checkoutData.startDate,
+        end_date: checkoutData.endDate,
+        total_price: checkoutData.total,
+        payment_method: paymentMethod,
+        status: 'active',
+        id: Math.random().toString(36).substring(7)
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="min-h-[100dvh] bg-surface pb-28 animate-slide-up">
+      <header className="fixed top-0 w-full z-50 bg-slate-50/60 dark:bg-slate-900/60 backdrop-blur-xl shadow-[0_4px_20px_rgba(0,101,123,0.06)]">
+        <div className="flex justify-between items-center px-6 h-16 w-full max-w-lg mx-auto">
+          <button onClick={onBack} className="w-10 h-10 rounded-full flex items-center justify-center bg-surface-container-low transition-all duration-300 transform active:scale-90 text-on-surface">
+            <span className="material-symbols-outlined">arrow_back</span>
+          </button>
+          <span className="font-headline font-extrabold text-on-surface text-lg">Оформление</span>
+          <div className="w-10 h-10"></div>
+        </div>
+      </header>
+
+      <div className="pt-24 px-5 max-w-lg mx-auto">
+         <h2 className="font-headline font-extrabold text-2xl text-on-surface mb-6">Ваш заказ</h2>
+         
+         <div className="bg-surface-container-lowest rounded-[2rem] p-5 shadow-sm border border-outline-variant/10 mb-8 flex flex-col gap-4">
+            <div className="flex gap-4">
+               <img src={checkoutData.image_url} alt={checkoutData.name} className="w-20 h-20 rounded-2xl object-cover shadow-sm" />
+               <div>
+                  <h3 className="font-headline font-bold text-[15px] text-on-surface mb-1 leading-tight">{checkoutData.name}</h3>
+                  <p className="text-on-surface-variant text-[13px]">{checkoutData.days} дней аренда</p>
+               </div>
+            </div>
+            
+            <div className="flex justify-between items-center py-4 border-y border-outline-variant/10">
+               <div className="text-[13px] font-semibold text-on-surface-variant">
+                  {new Date(checkoutData.startDate).toLocaleDateString()} — {new Date(checkoutData.endDate).toLocaleDateString()}
+               </div>
+               <div className="text-[16px] font-extrabold text-primary">
+                  {checkoutData.total} сом
+               </div>
+            </div>
+            
+            <div className="flex justify-between items-center">
+               <span className="font-bold text-on-surface">Итого к оплате:</span>
+               <span className="text-2xl font-extrabold text-primary">{checkoutData.total} <span className="text-sm">сом</span></span>
+            </div>
+         </div>
+
+         <h2 className="font-headline font-extrabold text-xl text-on-surface mb-4">Способ оплаты</h2>
+         <div className="flex flex-col gap-3">
+            {methods.map(method => (
+               <label key={method} className={`relative flex items-center p-4 rounded-2xl border-2 transition-all cursor-pointer transform active:scale-[0.98] duration-300 ${paymentMethod === method ? 'border-primary bg-primary-container/10' : 'border-outline-variant/20 bg-surface-container-lowest'}`}>
+                  <input type="radio" className="sr-only" name="paymentMethod" value={method} checked={paymentMethod === method} onChange={() => setPaymentMethod(method)} />
+                  <div className={`w-5 h-5 rounded-full border-[2.5px] flex items-center justify-center mr-4 transition-colors ${paymentMethod === method ? 'border-primary' : 'border-outline-variant'}`}>
+                     {paymentMethod === method && <div className="w-2.5 h-2.5 bg-primary rounded-full animate-zoom-in" />}
+                  </div>
+                  <span className="font-bold text-[15px] text-on-surface flex-1">{method}</span>
+                  {method.includes('Bank') && <span className="material-symbols-outlined text-primary">account_balance</span>}
+                  {method.includes('Наличные') && <span className="material-symbols-outlined text-primary">payments</span>}
+               </label>
+            ))}
+         </div>
+      </div>
+
+      <div className="fixed bottom-0 left-0 w-full bg-surface/90 backdrop-blur-lg pt-4 pb-6 border-t border-surface-container z-40">
+         <div className="max-w-lg mx-auto px-5">
+            <button 
+              onClick={handleSubmit}
+              disabled={!paymentMethod || isSubmitting}
+              className={`w-full py-4 rounded-full font-bold text-[16px] transition-all duration-300 transform active:scale-[0.96] flex justify-center items-center gap-2 ${paymentMethod && !isSubmitting ? "bg-primary text-on-primary shadow-[0_8px_20px_rgba(0,101,123,0.3)] hover:bg-sky-800" : "bg-surface-variant/70 text-on-surface-variant/50 cursor-not-allowed shadow-none"}`}
+            >
+              {isSubmitting ? (
+                <><span className="material-symbols-outlined animate-spin text-[20px]" style={{ animation: "spin 1s linear infinite" }}>refresh</span> Обработка...</>
+              ) : (
+                "Подтвердить заказ"
+              )}
+            </button>
+         </div>
+      </div>
+    </div>
+  );
+}
+
 function ProductPage({ product, onBack, onBook }) {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -234,6 +359,7 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('catalog');
   const [selectedProductId, setSelectedProductId] = useState(null);
+  const [checkoutData, setCheckoutData] = useState(null);
 
   useEffect(() => {
     if (window.Telegram && window.Telegram.WebApp) {
@@ -285,15 +411,24 @@ export default function App() {
   };
 
   const handleBook = (bookingData) => {
-    if (window.Telegram && window.Telegram.WebApp) {
-      window.Telegram.WebApp.showAlert('Успех! Вы забронировали товар на сумму ' + bookingData.total + ' сом.');
-    } else {
-      alert('Успех! Вы забронировали товар на сумму ' + bookingData.total + ' сом.');
-    }
-    // Здесь мог бы быть запрос на сервер для сохранения бронирования
+    setCheckoutData(bookingData);
+  };
+
+  const handleConfirmOrder = (orderResponse) => {
+    setCheckoutData(null);
     setSelectedProductId(null);
+    
+    if (window.Telegram && window.Telegram.WebApp) {
+      window.Telegram.WebApp.showAlert(`Заказ оформлен! Статус: ${orderResponse.status}`);
+    } else {
+      alert(`Заказ оформлен! Статус: ${orderResponse.status}`);
+    }
     setActiveTab('bookings');
   };
+
+  if (checkoutData) {
+    return <CheckoutPage checkoutData={checkoutData} onBack={() => setCheckoutData(null)} onConfirm={handleConfirmOrder} />;
+  }
 
   if (selectedProductId) {
     const product = gear.find(g => g.id === selectedProductId) || FALLBACK_GEAR.find(g => g.id === selectedProductId);
