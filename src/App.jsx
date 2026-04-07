@@ -53,12 +53,129 @@ const FALLBACK_GEAR = [
   }
 ];
 
+function ProductPage({ product, onBack, onBook }) {
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  
+  const description = product.description || {
+    1: "Легкие карбоновые палки для комфортного треккинга со сменными насадками и эргономичными ручками.",
+    2: "Двухместная ультралегкая палатка для серьезных восхождений. Ветроустойчивая конструкция, простая установка.",
+    3: "Профессиональный экспедиционный рюкзак объемом 65 литров с анатомической спинкой и водонепроницаемыми молниями.",
+    4: "Теплые альпинистские ботинки для экстремальных условий и высотных восхождений. Совместимы с кошками.",
+    5: "Мощный налобный фонарь с автоматической регулировкой яркости. Максимум 900 люмен. Отлично подходит для ночных переходов.",
+    6: "Пуховый спальный мешок для экстремальных температур до -20°C. Компактный, легкий и очень теплый."
+  }[product.id] || "Отличное качественное снаряжение для ваших горных приключений.";
+
+  let days = 0;
+  if (startDate && endDate) {
+    const s = new Date(startDate);
+    const e = new Date(endDate);
+    const diffTime = e - s;
+    if (diffTime > 0) {
+      days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    }
+  }
+
+  const todayStr = new Date().toISOString().split('T')[0];
+
+  return (
+    <div className="min-h-screen bg-surface pb-32">
+      {/* Header with image */}
+      <div className="relative h-72 rounded-b-[2rem] overflow-hidden shadow-sm">
+        <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
+        <div className="absolute top-0 left-0 w-full p-6 flex justify-between items-center bg-gradient-to-b from-black/60 to-transparent">
+          <button onClick={onBack} className="w-10 h-10 rounded-full flex items-center justify-center glass-card hover:bg-white/30 transition-all text-white backdrop-blur-xl border border-white/20">
+            <span className="material-symbols-outlined">arrow_back</span>
+          </button>
+        </div>
+        <div className="absolute bottom-4 right-4 glass-card px-3 py-1.5 rounded-full flex items-center gap-1 border border-white/20 backdrop-blur-xl">
+          <span className="material-symbols-outlined text-[14px] text-amber-400" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+          <span className="font-bold text-sky-900 text-sm">{product.rating.toFixed(1)}</span>
+        </div>
+      </div>
+
+      <div className="px-5 mt-6 max-w-lg mx-auto">
+        <div className="flex justify-between items-start mb-3">
+           <h1 className="text-2xl font-headline font-extrabold text-on-surface leading-tight w-2/3">{product.name}</h1>
+           <div className="text-right">
+             <p className="text-primary font-extrabold text-2xl">{product.price_per_day}<span className="text-lg"> сом</span></p>
+             <p className="text-[11px] text-on-surface-variant font-medium">в день</p>
+           </div>
+        </div>
+
+        <p className="text-on-surface-variant mb-8 text-[15px] leading-relaxed font-body">
+          {description}
+        </p>
+
+        {/* Booking settings */}
+        <div className="bg-surface-container-lowest rounded-[2rem] p-5 shadow-sm border border-outline-variant/10 mb-6">
+          <h2 className="font-headline font-bold text-[17px] mb-4 text-on-surface">Параметры аренды</h2>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[12px] font-bold text-on-surface-variant mb-1.5 ml-2 uppercase tracking-wide">Начало</label>
+              <input 
+                type="date" 
+                min={todayStr}
+                value={startDate} 
+                onChange={e => {
+                  setStartDate(e.target.value);
+                  if (endDate && e.target.value > endDate) {
+                    setEndDate('');
+                  }
+                }}
+                className="w-full bg-surface-container-low py-3.5 px-4 rounded-xl border-none focus:ring-2 focus:ring-inverse-primary/30 text-on-surface text-sm font-semibold transition-all"
+              />
+            </div>
+            <div>
+               <label className="block text-[12px] font-bold text-on-surface-variant mb-1.5 ml-2 uppercase tracking-wide">Окончание</label>
+              <input 
+                type="date" 
+                min={startDate ? (() => {
+                  let d = new Date(startDate);
+                  d.setDate(d.getDate() + 1);
+                  return d.toISOString().split('T')[0];
+                })() : todayStr}
+                value={endDate} 
+                onChange={e => setEndDate(e.target.value)}
+                className="w-full bg-surface-container-low py-3.5 px-4 rounded-xl border-none focus:ring-2 focus:ring-inverse-primary/30 text-on-surface text-sm font-semibold transition-all"
+              />
+            </div>
+          </div>
+
+          <div className="mt-5 bg-primary-container/10 rounded-2xl p-4 flex justify-between items-center transition-all border border-primary/10">
+             <div>
+               <p className="text-sm font-bold text-on-surface">Итого за <span className="text-primary">{days} дней</span>:</p>
+             </div>
+             <div>
+               <p className="text-xl font-extrabold text-primary">{days * product.price_per_day} <span className="text-sm">сом</span></p>
+             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Sticky Book Button */}
+      <div className="fixed bottom-0 left-0 w-full bg-surface/90 backdrop-blur-lg pt-4 pb-6 border-t border-surface-container z-50">
+         <div className="max-w-lg mx-auto px-5">
+            <button 
+              onClick={() => onBook({...product, startDate, endDate, days, total: days * product.price_per_day})}
+              disabled={days <= 0}
+              className={`w-full py-4 rounded-full font-bold text-[16px] transition-all duration-300 transform active:scale-[0.98] ${days > 0 ? "bg-primary text-on-primary hover:bg-sky-800 shadow-[0_8px_20px_rgba(0,101,123,0.25)]" : "bg-surface-variant/70 text-on-surface-variant/50 shadow-none cursor-not-allowed"}`}
+            >
+              Забронировать
+            </button>
+         </div>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const [gear, setGear] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('Все');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('catalog');
+  const [selectedProductId, setSelectedProductId] = useState(null);
 
   useEffect(() => {
     if (window.Telegram && window.Telegram.WebApp) {
@@ -106,12 +223,26 @@ export default function App() {
   };
 
   const handleProductClick = (id) => {
-    if (window.Telegram && window.Telegram.WebApp) {
-      window.Telegram.WebApp.showAlert('Переход на страницу товара #' + id);
-    } else {
-      alert('Переход на страницу товара #' + id);
-    }
+    setSelectedProductId(id);
   };
+
+  const handleBook = (bookingData) => {
+    if (window.Telegram && window.Telegram.WebApp) {
+      window.Telegram.WebApp.showAlert('Успех! Вы забронировали товар на сумму ' + bookingData.total + ' сом.');
+    } else {
+      alert('Успех! Вы забронировали товар на сумму ' + bookingData.total + ' сом.');
+    }
+    // Здесь мог бы быть запрос на сервер для сохранения бронирования
+    setSelectedProductId(null);
+    setActiveTab('bookings');
+  };
+
+  if (selectedProductId) {
+    const product = gear.find(g => g.id === selectedProductId) || FALLBACK_GEAR.find(g => g.id === selectedProductId);
+    if (product) {
+      return <ProductPage product={product} onBack={() => setSelectedProductId(null)} onBook={handleBook} />;
+    }
+  }
 
   return (
     <>
