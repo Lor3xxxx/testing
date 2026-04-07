@@ -191,33 +191,33 @@ function ProductPage({ product, onBack, onBook }) {
          </div>
       </div>
 
-      {/* Light Glass Modal with Dark Backdrop */}
+      {/* Solid Clear Modal */}
       {activeModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center px-6" onClick={() => setActiveModal(null)}>
-          {/* Strongly Darkened Backdrop */}
-          <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm transition-opacity"></div>
+          {/* Darkened Backdrop */}
+          <div className="absolute inset-0 bg-slate-900/60 transition-opacity"></div>
           
-          {/* Lighter Frosted Glass Card with White Text */}
+          {/* Solid White Card Modal */}
           <div 
-            className="relative w-full max-w-sm bg-white/20 backdrop-blur-3xl border border-white/40 shadow-[0_20px_40px_rgba(0,0,0,0.5)] rounded-[2rem] p-6 transition-all transform animate-in fade-in zoom-in-95 duration-300"
+            className="relative w-full max-w-sm bg-surface-container-lowest rounded-[2rem] p-6 transition-all transform animate-in fade-in zoom-in-95 duration-300 shadow-[0_20px_40px_rgba(0,0,0,0.5)]"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-6">
-              <h3 className="font-headline font-extrabold text-xl text-white flex items-center gap-2 drop-shadow-md">
+              <h3 className="font-headline font-extrabold text-[19px] text-on-surface flex items-center gap-2">
                  {activeModal === 'weight' ? (
-                   <><span className="material-symbols-outlined text-white">scale</span>Вес</>
+                   <><span className="material-symbols-outlined text-primary">scale</span>Вес</>
                  ) : (
-                   <><span className="material-symbols-outlined text-white">straighten</span>Длина</>
+                   <><span className="material-symbols-outlined text-primary">straighten</span>Длина</>
                  )}
               </h3>
-              <button onClick={() => setActiveModal(null)} className="w-9 h-9 flex items-center justify-center bg-white/20 hover:bg-white/40 rounded-full transition-all duration-300 transform active:scale-90 active:rotate-90 text-white shadow-sm border border-white/30">
+              <button onClick={() => setActiveModal(null)} className="w-9 h-9 flex items-center justify-center bg-surface-container-low hover:bg-surface-container-high rounded-full transition-all duration-300 transform active:scale-90 active:rotate-90 text-on-surface-variant">
                  <span className="material-symbols-outlined text-[20px]">close</span>
               </button>
             </div>
-            <p className="font-body text-[16px] text-white/95 font-bold mb-8 leading-relaxed drop-shadow-sm">
+            <p className="font-body text-[16px] text-on-surface-variant mb-8 leading-relaxed">
                {activeModal === 'weight' ? (product.weight || "Параметр устанавливается...") : (product.length || "Параметр устанавливается...")}
             </p>
-            <button onClick={() => setActiveModal(null)} className="w-full bg-white text-sky-900 font-extrabold py-3.5 rounded-full hover:bg-slate-100 transition-all duration-300 transform active:scale-95 shadow-xl">
+            <button onClick={() => setActiveModal(null)} className="w-full bg-primary text-on-primary font-bold py-3.5 rounded-full hover:bg-sky-800 transition-all duration-300 transform active:scale-95 shadow-md">
                Понятно
             </button>
           </div>
