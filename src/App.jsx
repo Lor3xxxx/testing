@@ -190,6 +190,74 @@ function CheckoutPage({ checkoutData, onBack, onConfirm }) {
   );
 }
 
+function BookingsView({ orders, isLoading, filter, setFilter, gearList, fallbackGear }) {
+  const displayedOrders = orders.filter(o => o.status === filter);
+
+  return (
+    <div className="pt-2 px-1 animate-slide-up pb-28">
+      <h1 className="text-3xl font-extrabold font-headline tracking-tight text-on-surface mb-6 leading-tight">
+        Мои <span className="text-gradient">брони</span>
+      </h1>
+      
+      {/* Segmented Control */}
+      <div className="flex bg-surface-container-low rounded-2xl p-1 mb-8 shadow-sm">
+         <button onClick={() => setFilter('active')} className={`flex-1 py-3 rounded-xl font-bold text-sm transition-all duration-300 transform active:scale-[0.98] ${filter === 'active' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface border border-transparent'}`}>
+           Активные
+         </button>
+         <button onClick={() => setFilter('completed')} className={`flex-1 py-3 rounded-xl font-bold text-sm transition-all duration-300 transform active:scale-[0.98] ${filter === 'completed' ? 'bg-surface-container-lowest text-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface border border-transparent'}`}>
+           Завершенные
+         </button>
+      </div>
+
+      {isLoading ? (
+         <div className="flex justify-center p-10"><span className="material-symbols-outlined animate-spin text-primary text-3xl" style={{ animation: "spin 1s linear infinite" }}>refresh</span></div>
+      ) : displayedOrders.length === 0 ? (
+         <div className="text-center bg-surface-container-lowest border border-outline-variant/10 rounded-[2rem] p-10">
+            <span className="material-symbols-outlined text-5xl text-primary/30 mb-4 block">event_busy</span>
+            <h3 className="font-headline font-bold text-lg text-on-surface mb-2">Пусто</h3>
+            <p className="text-on-surface-variant text-sm">У вас пока нет {filter === 'active' ? 'активных' : 'завершенных'} бронирований</p>
+         </div>
+      ) : (
+         <div className="flex flex-col gap-4">
+            {displayedOrders.map(order => {
+               const product = gearList.find(g => g.id === order.item_id) || fallbackGear.find(g => g.id === order.item_id) || {};
+               return (
+                 <div key={order.id} className="bg-surface-container-lowest rounded-[2rem] p-4 shadow-sm border border-outline-variant/10 flex flex-col gap-4 transition-all duration-300 transform active:scale-[0.98]">
+                    <div className="flex gap-4">
+                       <div className="w-16 h-16 rounded-xl overflow-hidden shadow-sm flex-none">
+                         <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
+                       </div>
+                       <div className="flex flex-col justify-center flex-1 min-w-0">
+                          <h3 className="font-headline font-bold text-[14px] text-on-surface truncate leading-tight mb-1" title={product.name}>{product.name || "Снаряжение"}</h3>
+                          <div className="flex items-center justify-between">
+                             <p className="text-primary font-extrabold text-[15px]">{order.total_price} <span className="text-[11px]">сом</span></p>
+                          </div>
+                       </div>
+                    </div>
+                    
+                    <div className="bg-surface-container-low rounded-xl p-3 flex justify-between items-center border border-outline-variant/5">
+                       <div className="flex items-center gap-2 text-on-surface-variant">
+                         <span className="material-symbols-outlined text-[16px]">calendar_today</span>
+                         <span className="text-[12px] font-bold tracking-wide">
+                            {new Date(order.start_date).toLocaleDateString('ru-RU', {day: 'numeric', month: 'short'})} — {new Date(order.end_date).toLocaleDateString('ru-RU', {day: 'numeric', month: 'short'})}
+                         </span>
+                       </div>
+                       
+                       {order.status === 'active' ? (
+                          <div className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 text-[11px] font-extrabold uppercase tracking-wider">Активен</div>
+                       ) : (
+                          <div className="px-3 py-1 rounded-full bg-slate-500/10 text-slate-500 border border-slate-500/20 text-[11px] font-extrabold uppercase tracking-wider">Завершен</div>
+                       )}
+                    </div>
+                 </div>
+               )
+            })}
+         </div>
+      )}
+    </div>
+  )
+}
+
 function ProductPage({ product, onBack, onBook }) {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -360,6 +428,9 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('catalog');
   const [selectedProductId, setSelectedProductId] = useState(null);
   const [checkoutData, setCheckoutData] = useState(null);
+  const [orders, setOrders] = useState([]);
+  const [isOrdersLoading, setIsOrdersLoading] = useState(false);
+  const [orderFilter, setOrderFilter] = useState('active');
 
   useEffect(() => {
     if (window.Telegram && window.Telegram.WebApp) {
@@ -376,6 +447,29 @@ export default function App() {
   useEffect(() => {
     fetchGear();
   }, [selectedCategory, searchQuery]);
+
+  useEffect(() => {
+    if (activeTab === 'bookings') {
+      fetchOrders();
+    }
+  }, [activeTab]);
+
+  const fetchOrders = async () => {
+    setIsOrdersLoading(true);
+    try {
+      const user_id = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || "test_user_123";
+      const response = await fetch(`http://localhost:8000/api/orders?user_id=${user_id}`);
+      if (response.ok) {
+        let data = await response.json();
+        data.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+        setOrders(data);
+      }
+    } catch (e) {
+      console.error("Failed to load orders", e);
+    } finally {
+      setIsOrdersLoading(false);
+    }
+  };
 
   const fetchGear = async () => {
     setIsLoading(true);
@@ -423,6 +517,9 @@ export default function App() {
     } else {
       alert(`Заказ оформлен! Статус: ${orderResponse.status}`);
     }
+    
+    // Add dynamically to local state so user immediately sees their order if backend is slow
+    setOrders(prev => [orderResponse, ...prev]);
     setActiveTab('bookings');
   };
 
@@ -453,92 +550,110 @@ export default function App() {
       </header>
 
       <main className="pt-20 px-4 max-w-lg mx-auto pb-6">
-        {/* Hero Search Section */}
-        <section className="mt-6">
-          <h1 className="text-3xl font-extrabold font-headline tracking-tight text-on-surface mb-6 leading-tight">
-            Горное снаряжение <br />
-            для ваших <span className="text-gradient">побед</span>
-          </h1>
-          <div className="relative group">
-            <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-              <span className="material-symbols-outlined text-outline">search</span>
-            </div>
-            <input
-              className="w-full bg-surface-container-lowest border-none rounded-2xl py-4 pl-12 pr-4 shadow-sm focus:ring-2 focus:ring-inverse-primary/20 transition-all duration-300 font-medium placeholder:text-slate-400"
-              placeholder="Поиск снаряжения..."
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-        </section>
-
-        {/* Categories Horizontal Scroll */}
-        <section className="mt-8 -mx-4 animate-fade-in">
-          <div className="flex overflow-x-auto px-4 gap-3 no-scrollbar">
-            {CATEGORIES.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`flex-none px-6 py-3 rounded-full font-semibold text-sm transition-all duration-300 transform active:scale-[0.94] ${
-                  selectedCategory === cat
-                    ? 'bg-primary text-on-primary shadow-[0_8px_16px_rgba(0,101,123,0.3)]'
-                    : 'bg-surface-container-lowest text-on-surface-variant border border-outline-variant/10 hover:bg-surface-container-high shadow-sm'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-        </section>
-
-        {/* Gear Grid */}
-        <section className="mt-10 grid grid-cols-2 gap-4 pb-28 animate-slide-up">
-          {isLoading ? (
-            // Skeleton Loading State
-            [1, 2, 3, 4].map((n) => (
-              <div key={n} className="flex flex-col bg-surface-container-lowest rounded-3xl overflow-hidden shadow-sm border border-transparent p-4 animate-pulse">
-                <div className="w-full h-32 bg-surface-variant rounded-2xl mb-4"></div>
-                <div className="h-4 bg-surface-variant rounded w-3/4 mb-2"></div>
-                <div className="h-4 bg-surface-variant rounded w-1/2"></div>
-              </div>
-            ))
-          ) : gear.length === 0 ? (
-            <div className="col-span-2 text-center text-on-surface-variant py-10 font-medium">
-              Ничего не найдено по вашему запросу.
-            </div>
-          ) : (
-            gear.map((item) => (
-              <div
-                key={item.id}
-                onClick={() => handleProductClick(item.id)}
-                className="group flex flex-col bg-surface-container-lowest rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 transform active:scale-[0.97] border border-transparent hover:border-inverse-primary/10 cursor-pointer"
-              >
-                <div className="relative h-44 overflow-hidden">
-                  <img
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    alt={item.name}
-                    src={item.image_url}
-                  />
-                  <div className="absolute top-3 right-3 bg-white/50 backdrop-blur-md px-2 py-1 rounded-full flex items-center gap-1 border border-white/30">
-                    <span className="material-symbols-outlined text-[14px] text-amber-500" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                    <span className="text-[12px] font-extrabold text-sky-950">{item.rating.toFixed(1)}</span>
-                  </div>
+        {activeTab === 'catalog' ? (
+          <>
+            {/* Hero Search Section */}
+            <section className="mt-6 animate-fade-in">
+              <h1 className="text-3xl font-extrabold font-headline tracking-tight text-on-surface mb-6 leading-tight">
+                Горное снаряжение <br />
+                для ваших <span className="text-gradient">побед</span>
+              </h1>
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+                  <span className="material-symbols-outlined text-outline">search</span>
                 </div>
-                <div className="p-4 flex flex-col flex-grow">
-                  <h3 className="font-headline font-bold text-on-surface text-[15px] leading-tight mb-2">
-                    {item.name}
-                  </h3>
-                  <div className="mt-auto">
-                    <p className="text-primary font-bold text-[16px]">
-                      {item.price_per_day} сом<span className="text-[11px] font-normal text-on-surface-variant">/день</span>
-                    </p>
-                  </div>
-                </div>
+                <input
+                  className="w-full bg-surface-container-lowest border-none rounded-2xl py-4 pl-12 pr-4 shadow-sm focus:ring-2 focus:ring-inverse-primary/20 transition-all duration-300 font-medium placeholder:text-slate-400"
+                  placeholder="Поиск снаряжения..."
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
               </div>
-            ))
-          )}
-        </section>
+            </section>
+
+            {/* Categories Horizontal Scroll */}
+            <section className="mt-8 -mx-4 animate-fade-in">
+              <div className="flex overflow-x-auto px-4 gap-3 no-scrollbar">
+                {CATEGORIES.map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => setSelectedCategory(cat)}
+                    className={`flex-none px-6 py-3 rounded-full font-semibold text-sm transition-all duration-300 transform active:scale-[0.94] ${
+                      selectedCategory === cat
+                        ? 'bg-primary text-on-primary shadow-[0_8px_16px_rgba(0,101,123,0.3)]'
+                        : 'bg-surface-container-lowest text-on-surface-variant border border-outline-variant/10 hover:bg-surface-container-high shadow-sm'
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </section>
+
+            {/* Gear Grid */}
+            <section className="mt-10 grid grid-cols-2 gap-4 pb-28 animate-slide-up">
+              {isLoading ? (
+                // Skeleton Loading State
+                [1, 2, 3, 4].map((n) => (
+                  <div key={n} className="flex flex-col bg-surface-container-lowest rounded-3xl overflow-hidden shadow-sm border border-transparent p-4 animate-pulse">
+                    <div className="w-full h-32 bg-surface-variant rounded-2xl mb-4"></div>
+                    <div className="h-4 bg-surface-variant rounded w-3/4 mb-2"></div>
+                    <div className="h-4 bg-surface-variant rounded w-1/2"></div>
+                  </div>
+                ))
+              ) : gear.length === 0 ? (
+                <div className="col-span-2 text-center text-on-surface-variant py-10 font-medium">
+                  Ничего не найдено по вашему запросу.
+                </div>
+              ) : (
+                gear.map((item) => (
+                  <div
+                    key={item.id}
+                    onClick={() => handleProductClick(item.id)}
+                    className="group flex flex-col bg-surface-container-lowest rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 transform active:scale-[0.97] border border-transparent hover:border-inverse-primary/10 cursor-pointer"
+                  >
+                    <div className="relative h-44 overflow-hidden">
+                      <img
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        alt={item.name}
+                        src={item.image_url}
+                      />
+                      <div className="absolute top-3 right-3 bg-white/50 backdrop-blur-md px-2 py-1 rounded-full flex items-center gap-1 border border-white/30">
+                        <span className="material-symbols-outlined text-[14px] text-amber-500" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                        <span className="text-[12px] font-extrabold text-sky-950">{item.rating.toFixed(1)}</span>
+                      </div>
+                    </div>
+                    <div className="p-4 flex flex-col flex-grow">
+                      <h3 className="font-headline font-bold text-on-surface text-[15px] leading-tight mb-2">
+                        {item.name}
+                      </h3>
+                      <div className="mt-auto">
+                        <p className="text-primary font-bold text-[16px]">
+                          {item.price_per_day} сом<span className="text-[11px] font-normal text-on-surface-variant">/день</span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </section>
+          </>
+        ) : activeTab === 'bookings' ? (
+          <BookingsView 
+             orders={orders} 
+             isLoading={isOrdersLoading} 
+             filter={orderFilter} 
+             setFilter={setOrderFilter} 
+             gearList={gear} 
+             fallbackGear={FALLBACK_GEAR} 
+          />
+        ) : (
+          <div className="flex flex-col items-center justify-center pt-20 animate-fade-in text-on-surface-variant">
+             <span className="material-symbols-outlined text-5xl opacity-40 mb-2">construction</span>
+             <p className="font-bold">Страница в разработке</p>
+          </div>
+        )}
       </main>
 
       {/* Bottom Navigation Bar */}

@@ -85,6 +85,23 @@ async def create_order(order: OrderCreate):
     orders_db.append(new_order)
     return new_order
     
+@app.get("/api/orders")
+async def get_orders(user_id: str = None):
+    # Auto-update status for expired orders
+    today = datetime.datetime.now().date()
+    for order in orders_db:
+        if order["status"] == "active":
+            try:
+                end_date_obj = datetime.datetime.strptime(order["end_date"], "%Y-%m-%d").date()
+                if today > end_date_obj:
+                    order["status"] = "completed"
+            except Exception:
+                pass
+                
+    if user_id:
+        return [o for o in orders_db if o["user_id"] == user_id]
+    return orders_db
+
 @app.get("/api/gear")
 async def get_gear(category: str = "Все", search: str = ""):
     filtered = MOCK_GEAR
