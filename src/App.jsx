@@ -92,12 +92,12 @@ function ProductPage({ product, onBack, onBook }) {
   const todayStr = new Date().toISOString().split('T')[0];
 
   return (
-    <div className="min-h-screen bg-surface pb-24">
+    <div className="min-h-[100dvh] bg-surface pb-28">
       {/* Header with image */}
       <div className="relative h-72 rounded-b-[2rem] overflow-hidden shadow-sm">
         <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
         <div className="absolute top-0 left-0 w-full p-6 flex justify-between items-center bg-gradient-to-b from-black/60 to-transparent">
-          <button onClick={onBack} className="w-10 h-10 rounded-full flex items-center justify-center glass-card hover:bg-white/30 transition-all text-white backdrop-blur-xl border border-white/20">
+          <button onClick={onBack} className="w-10 h-10 rounded-full flex items-center justify-center glass-card hover:bg-white/30 transition-all duration-300 transform active:scale-90 text-white backdrop-blur-xl border border-white/20">
             <span className="material-symbols-outlined">arrow_back</span>
           </button>
         </div>
@@ -122,18 +122,18 @@ function ProductPage({ product, onBack, onBook }) {
 
         {/* Buttons: Weight & Length */}
         <div className="flex gap-4 mb-8">
-          <button onClick={() => setActiveModal('weight')} className="flex-1 bg-surface-container-lowest border border-outline-variant/10 rounded-2xl py-3.5 px-4 flex items-center justify-center gap-2 hover:bg-surface-container transition-all shadow-sm active:scale-95">
-             <span className="material-symbols-outlined text-sky-700">scale</span>
+          <button onClick={() => setActiveModal('weight')} className="flex-1 bg-surface-container-lowest border border-outline-variant/10 rounded-2xl py-3.5 px-4 flex items-center justify-center gap-2 hover:bg-surface-container transition-all duration-300 transform active:scale-95 shadow-sm">
+             <span className="material-symbols-outlined text-primary">scale</span>
              <span className="font-headline font-bold text-sm text-on-surface">Вес</span>
           </button>
-          <button onClick={() => setActiveModal('length')} className="flex-1 bg-surface-container-lowest border border-outline-variant/10 rounded-2xl py-3.5 px-4 flex items-center justify-center gap-2 hover:bg-surface-container transition-all shadow-sm active:scale-95">
-             <span className="material-symbols-outlined text-sky-700">straighten</span>
+          <button onClick={() => setActiveModal('length')} className="flex-1 bg-surface-container-lowest border border-outline-variant/10 rounded-2xl py-3.5 px-4 flex items-center justify-center gap-2 hover:bg-surface-container transition-all duration-300 transform active:scale-95 shadow-sm">
+             <span className="material-symbols-outlined text-primary">straighten</span>
              <span className="font-headline font-bold text-sm text-on-surface">Длина</span>
           </button>
         </div>
 
         {/* Booking settings */}
-        <div className="bg-surface-container-lowest rounded-[2rem] p-5 shadow-sm border border-outline-variant/10 mb-6">
+        <div className="bg-surface-container-lowest rounded-[2rem] p-5 shadow-sm border border-outline-variant/10 mb-6 relative z-10">
           <h2 className="font-headline font-bold text-[17px] mb-4 text-on-surface">Параметры аренды</h2>
           <div className="grid grid-cols-2 gap-3">
             <div className="min-w-0">
@@ -179,44 +179,45 @@ function ProductPage({ product, onBack, onBook }) {
       </div>
 
       {/* Sticky Book Button */}
-      <div className="fixed bottom-0 left-0 w-full bg-surface/90 backdrop-blur-lg pt-4 pb-6 border-t border-surface-container z-50">
+      <div className="fixed bottom-0 left-0 w-full bg-surface/90 backdrop-blur-lg pt-4 pb-6 border-t border-surface-container z-40">
          <div className="max-w-lg mx-auto px-5">
             <button 
               onClick={() => onBook({...product, startDate, endDate, days, total: days * product.price_per_day})}
               disabled={days <= 0}
-              className={`w-full py-4 rounded-full font-bold text-[16px] transition-all duration-300 transform active:scale-[0.98] ${days > 0 ? "bg-primary text-on-primary hover:bg-sky-800 shadow-[0_8px_20px_rgba(0,101,123,0.25)]" : "bg-surface-variant/70 text-on-surface-variant/50 shadow-none cursor-not-allowed"}`}
+              className={`w-full py-4 rounded-full font-bold text-[16px] transition-all duration-300 transform active:scale-[0.96] ${days > 0 ? "bg-primary text-on-primary hover:bg-sky-800 shadow-[0_8px_20px_rgba(0,101,123,0.3)]" : "bg-surface-variant/70 text-on-surface-variant/50 shadow-none cursor-not-allowed"}`}
             >
               Забронировать
             </button>
          </div>
       </div>
 
-      {/* Glassmorphic Modal overlay (Водяное окно) */}
+      {/* Light Glass Modal with Dark Backdrop */}
       {activeModal && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center px-6" onClick={() => setActiveModal(null)}>
-          {/* Glass background */}
-          <div className="absolute inset-0 bg-slate-900/20 backdrop-blur-md transition-opacity"></div>
-          {/* Glass card modal */}
+        <div className="fixed inset-0 z-[100] flex items-center justify-center px-6" onClick={() => setActiveModal(null)}>
+          {/* Strongly Darkened Backdrop */}
+          <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm transition-opacity"></div>
+          
+          {/* Lighter Frosted Glass Card with White Text */}
           <div 
-            className="relative w-full max-w-sm glass-card border flex flex-col border-white/20 rounded-[2rem] p-6 shadow-2xl"
+            className="relative w-full max-w-sm bg-white/20 backdrop-blur-3xl border border-white/40 shadow-[0_20px_40px_rgba(0,0,0,0.5)] rounded-[2rem] p-6 transition-all transform animate-in fade-in zoom-in-95 duration-300"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-6">
-              <h3 className="font-headline font-extrabold text-xl text-sky-950 flex items-center gap-2">
+              <h3 className="font-headline font-extrabold text-xl text-white flex items-center gap-2 drop-shadow-md">
                  {activeModal === 'weight' ? (
-                   <><span className="material-symbols-outlined text-primary">scale</span>Вес</>
+                   <><span className="material-symbols-outlined text-white">scale</span>Вес</>
                  ) : (
-                   <><span className="material-symbols-outlined text-primary">straighten</span>Длина</>
+                   <><span className="material-symbols-outlined text-white">straighten</span>Длина</>
                  )}
               </h3>
-              <button onClick={() => setActiveModal(null)} className="w-9 h-9 flex items-center justify-center glass-card hover:bg-white/70 rounded-full transition-all text-sky-950">
+              <button onClick={() => setActiveModal(null)} className="w-9 h-9 flex items-center justify-center bg-white/20 hover:bg-white/40 rounded-full transition-all duration-300 transform active:scale-90 active:rotate-90 text-white shadow-sm border border-white/30">
                  <span className="material-symbols-outlined text-[20px]">close</span>
               </button>
             </div>
-            <p className="font-body text-[16px] text-sky-950/80 font-bold mb-8 leading-relaxed">
+            <p className="font-body text-[16px] text-white/95 font-bold mb-8 leading-relaxed drop-shadow-sm">
                {activeModal === 'weight' ? (product.weight || "Параметр устанавливается...") : (product.length || "Параметр устанавливается...")}
             </p>
-            <button onClick={() => setActiveModal(null)} className="w-full bg-primary text-on-primary font-bold py-3.5 rounded-full hover:bg-sky-800 transition-all shadow-md mt-auto">
+            <button onClick={() => setActiveModal(null)} className="w-full bg-white text-sky-900 font-extrabold py-3.5 rounded-full hover:bg-slate-100 transition-all duration-300 transform active:scale-95 shadow-xl">
                Понятно
             </button>
           </div>
@@ -310,13 +311,13 @@ export default function App() {
             <span className="material-symbols-outlined text-sky-700" style={{ fontVariationSettings: "'FILL' 1" }}>ac_unit</span>
             <span className="text-lg font-bold tracking-widest uppercase text-sky-900 font-headline">Alpinist</span>
           </div>
-          <button className="w-10 h-10 rounded-full flex items-center justify-center bg-surface-container-low hover:bg-sky-50/50 transition-all duration-300">
+          <button className="w-10 h-10 rounded-full flex items-center justify-center bg-surface-container-low transition-all duration-300 transform active:scale-90 hover:bg-sky-50/50">
             <span className="material-symbols-outlined text-sky-700">shopping_bag</span>
           </button>
         </div>
       </header>
 
-      <main className="pt-20 px-4 max-w-lg mx-auto">
+      <main className="pt-20 px-4 max-w-lg mx-auto pb-6">
         {/* Hero Search Section */}
         <section className="mt-6">
           <h1 className="text-3xl font-extrabold font-headline tracking-tight text-on-surface mb-6 leading-tight">
@@ -344,10 +345,10 @@ export default function App() {
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`flex-none px-6 py-3 rounded-full font-semibold text-sm transition-all ${
+                className={`flex-none px-6 py-3 rounded-full font-semibold text-sm transition-all duration-300 transform active:scale-[0.94] ${
                   selectedCategory === cat
-                    ? 'bg-primary text-on-primary shadow-[0_8px_16px_rgba(0,101,123,0.2)]'
-                    : 'bg-surface-container-lowest text-on-surface-variant border border-outline-variant/10 hover:bg-surface-container-high'
+                    ? 'bg-primary text-on-primary shadow-[0_8px_16px_rgba(0,101,123,0.3)]'
+                    : 'bg-surface-container-lowest text-on-surface-variant border border-outline-variant/10 hover:bg-surface-container-high shadow-sm'
                 }`}
               >
                 {cat}
@@ -357,7 +358,7 @@ export default function App() {
         </section>
 
         {/* Gear Grid */}
-        <section className="mt-10 grid grid-cols-2 gap-4">
+        <section className="mt-10 grid grid-cols-2 gap-4 pb-28">
           {isLoading ? (
             // Skeleton Loading State
             [1, 2, 3, 4].map((n) => (
@@ -368,7 +369,7 @@ export default function App() {
               </div>
             ))
           ) : gear.length === 0 ? (
-            <div className="col-span-2 text-center text-on-surface-variant py-10">
+            <div className="col-span-2 text-center text-on-surface-variant py-10 font-medium">
               Ничего не найдено по вашему запросу.
             </div>
           ) : (
@@ -376,17 +377,17 @@ export default function App() {
               <div
                 key={item.id}
                 onClick={() => handleProductClick(item.id)}
-                className="group flex flex-col bg-surface-container-lowest rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-transparent hover:border-inverse-primary/10 cursor-pointer"
+                className="group flex flex-col bg-surface-container-lowest rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 transform active:scale-[0.97] border border-transparent hover:border-inverse-primary/10 cursor-pointer"
               >
                 <div className="relative h-44 overflow-hidden">
                   <img
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     alt={item.name}
                     src={item.image_url}
                   />
-                  <div className="absolute top-3 right-3 glass-card px-2 py-1 rounded-full flex items-center gap-1">
-                    <span className="material-symbols-outlined text-[14px] text-amber-400" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                    <span className="text-[12px] font-bold text-sky-900">{item.rating.toFixed(1)}</span>
+                  <div className="absolute top-3 right-3 bg-white/50 backdrop-blur-md px-2 py-1 rounded-full flex items-center gap-1 border border-white/30">
+                    <span className="material-symbols-outlined text-[14px] text-amber-500" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                    <span className="text-[12px] font-extrabold text-sky-950">{item.rating.toFixed(1)}</span>
                   </div>
                 </div>
                 <div className="p-4 flex flex-col flex-grow">
@@ -406,19 +407,19 @@ export default function App() {
       </main>
 
       {/* Bottom Navigation Bar */}
-      <nav className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[92%] rounded-3xl z-50 bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-2xl shadow-[0_10px_30px_rgba(0,0,0,0.08)]">
+      <nav className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[92%] rounded-3xl z-50 bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-2xl shadow-[0_10px_30px_rgba(0,0,0,0.08)] border border-surface-variant/20">
         <div className="flex justify-around items-center h-20 px-4">
-          <div onClick={() => setActiveTab('catalog')} className={`flex flex-col items-center justify-center cursor-pointer transition-transform duration-200 active:scale-95 ${activeTab === 'catalog' ? "text-sky-700 dark:text-sky-300 relative after:content-[''] after:absolute after:-bottom-1 after:w-1 after:h-1 after:bg-sky-400 after:rounded-full after:shadow-[0_0_8px_#47d6ff]" : "text-slate-400 dark:text-slate-500 hover:opacity-80"}`}>
+          <div onClick={() => setActiveTab('catalog')} className={`flex flex-col items-center justify-center cursor-pointer transition-all duration-300 transform active:scale-90 ${activeTab === 'catalog' ? "text-sky-700 dark:text-sky-300 relative after:content-[''] after:absolute after:-bottom-1 after:w-1 after:h-1 after:bg-sky-400 after:rounded-full after:shadow-[0_0_8px_#47d6ff]" : "text-slate-400 dark:text-slate-500 hover:opacity-80"}`}>
             <span className="material-symbols-outlined mb-1" style={activeTab === 'catalog' ? { fontVariationSettings: "'FILL' 1" } : {}}>grid_view</span>
             <span className="font-manrope text-[11px] font-semibold tracking-wide uppercase">Catalog</span>
           </div>
           
-          <div onClick={() => setActiveTab('bookings')} className={`flex flex-col items-center justify-center cursor-pointer transition-transform duration-200 active:scale-95 ${activeTab === 'bookings' ? "text-sky-700 dark:text-sky-300 relative after:content-[''] after:absolute after:-bottom-1 after:w-1 after:h-1 after:bg-sky-400 after:rounded-full after:shadow-[0_0_8px_#47d6ff]" : "text-slate-400 dark:text-slate-500 hover:opacity-80"}`}>
+          <div onClick={() => setActiveTab('bookings')} className={`flex flex-col items-center justify-center cursor-pointer transition-all duration-300 transform active:scale-90 ${activeTab === 'bookings' ? "text-sky-700 dark:text-sky-300 relative after:content-[''] after:absolute after:-bottom-1 after:w-1 after:h-1 after:bg-sky-400 after:rounded-full after:shadow-[0_0_8px_#47d6ff]" : "text-slate-400 dark:text-slate-500 hover:opacity-80"}`}>
             <span className="material-symbols-outlined mb-1" style={activeTab === 'bookings' ? { fontVariationSettings: "'FILL' 1" } : {}}>calendar_today</span>
             <span className="font-manrope text-[11px] font-semibold tracking-wide uppercase">Bookings</span>
           </div>
           
-          <div onClick={() => setActiveTab('profile')} className={`flex flex-col items-center justify-center cursor-pointer transition-transform duration-200 active:scale-95 ${activeTab === 'profile' ? "text-sky-700 dark:text-sky-300 relative after:content-[''] after:absolute after:-bottom-1 after:w-1 after:h-1 after:bg-sky-400 after:rounded-full after:shadow-[0_0_8px_#47d6ff]" : "text-slate-400 dark:text-slate-500 hover:opacity-80"}`}>
+          <div onClick={() => setActiveTab('profile')} className={`flex flex-col items-center justify-center cursor-pointer transition-all duration-300 transform active:scale-90 ${activeTab === 'profile' ? "text-sky-700 dark:text-sky-300 relative after:content-[''] after:absolute after:-bottom-1 after:w-1 after:h-1 after:bg-sky-400 after:rounded-full after:shadow-[0_0_8px_#47d6ff]" : "text-slate-400 dark:text-slate-500 hover:opacity-80"}`}>
             <span className="material-symbols-outlined mb-1" style={activeTab === 'profile' ? { fontVariationSettings: "'FILL' 1" } : {}}>person</span>
             <span className="font-manrope text-[11px] font-semibold tracking-wide uppercase">Profile</span>
           </div>
