@@ -92,7 +92,7 @@ function ProductPage({ product, onBack, onBook }) {
   const todayStr = new Date().toISOString().split('T')[0];
 
   return (
-    <div className="min-h-screen bg-surface pb-32">
+    <div className="min-h-screen bg-surface pb-28">
       {/* Header with image */}
       <div className="relative h-72 rounded-b-[2rem] overflow-hidden shadow-sm">
         <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
@@ -136,8 +136,8 @@ function ProductPage({ product, onBack, onBook }) {
         <div className="bg-surface-container-lowest rounded-[2rem] p-5 shadow-sm border border-outline-variant/10 mb-6">
           <h2 className="font-headline font-bold text-[17px] mb-4 text-on-surface">Параметры аренды</h2>
           <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-[12px] font-bold text-on-surface-variant mb-1.5 ml-2 uppercase tracking-wide">Начало</label>
+            <div className="min-w-0">
+              <label className="block text-[11px] sm:text-[12px] font-bold text-on-surface-variant mb-1.5 ml-1 uppercase tracking-wide">Начало</label>
               <input 
                 type="date" 
                 min={todayStr}
@@ -148,11 +148,11 @@ function ProductPage({ product, onBack, onBook }) {
                     setEndDate('');
                   }
                 }}
-                className="w-full bg-surface-container-low py-3.5 px-4 rounded-xl border-none focus:ring-2 focus:ring-inverse-primary/30 text-on-surface text-sm font-semibold transition-all"
+                className="block w-full min-w-0 bg-surface-container-low py-3.5 px-2.5 sm:px-4 rounded-xl border-none focus:ring-2 focus:ring-inverse-primary/30 text-on-surface text-[13px] sm:text-sm font-semibold transition-all appearance-none"
               />
             </div>
-            <div>
-               <label className="block text-[12px] font-bold text-on-surface-variant mb-1.5 ml-2 uppercase tracking-wide">Окончание</label>
+            <div className="min-w-0">
+               <label className="block text-[11px] sm:text-[12px] font-bold text-on-surface-variant mb-1.5 ml-1 uppercase tracking-wide">Окончание</label>
               <input 
                 type="date" 
                 min={startDate ? (() => {
@@ -162,7 +162,7 @@ function ProductPage({ product, onBack, onBook }) {
                 })() : todayStr}
                 value={endDate} 
                 onChange={e => setEndDate(e.target.value)}
-                className="w-full bg-surface-container-low py-3.5 px-4 rounded-xl border-none focus:ring-2 focus:ring-inverse-primary/30 text-on-surface text-sm font-semibold transition-all"
+                className="block w-full min-w-0 bg-surface-container-low py-3.5 px-2.5 sm:px-4 rounded-xl border-none focus:ring-2 focus:ring-inverse-primary/30 text-on-surface text-[13px] sm:text-sm font-semibold transition-all appearance-none"
               />
             </div>
           </div>
