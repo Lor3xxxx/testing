@@ -9,7 +9,9 @@ const FALLBACK_GEAR = [
       category: "Палки",
       price_per_day: 500,
       rating: 4.9,
-      image_url: "https://lh3.googleusercontent.com/aida-public/AB6AXuC_EOHBkfxurxpUyVccPQuokZDg5rw6LWpiHTCuwL6vQ5GQy5rw1OGUJcr0o0A0RHVASZnLip05Jq177B8W3UCAW6ZKxW9ctyP61mxtZuupWvuduZ7BnArQFbq921H7rtWY-x9fitFeCqt2ckfv361rBeD888lbq7h0VBEGDAc873_CTH3JXFdEdWRiXwe-Xhxn9TBCNGXdqGIrp0VlWRylAKQ93BxFCiVZoCXMIKFDHEs6bjOQtuPvQYTtoGRAqg2qtRStBdJ4jQ"
+      image_url: "https://lh3.googleusercontent.com/aida-public/AB6AXuC_EOHBkfxurxpUyVccPQuokZDg5rw6LWpiHTCuwL6vQ5GQy5rw1OGUJcr0o0A0RHVASZnLip05Jq177B8W3UCAW6ZKxW9ctyP61mxtZuupWvuduZ7BnArQFbq921H7rtWY-x9fitFeCqt2ckfv361rBeD888lbq7h0VBEGDAc873_CTH3JXFdEdWRiXwe-Xhxn9TBCNGXdqGIrp0VlWRylAKQ93BxFCiVZoCXMIKFDHEs6bjOQtuPvQYTtoGRAqg2qtRStBdJ4jQ",
+      weight: "260 г (одна палка)",
+      length: "100-130 см в разложенном виде, 62 см в сложенном."
   },
   {
       id: 2,
@@ -17,7 +19,9 @@ const FALLBACK_GEAR = [
       category: "Палатки",
       price_per_day: 1200,
       rating: 5.0,
-      image_url: "https://lh3.googleusercontent.com/aida-public/AB6AXuCQYkd020CmaW0tAAPtNq_kCmUFXCtqYQCBwpXfAS3nLwn_fNC_dScv2wGu-Y-30TcBZ5yQtqUu-L-vpXGcpolaN7Ach5E8xMhZGvF92SuHBL-jHELiYGMrgKeY6fcdfM4QVrcA03OlfG0evVbAAoEQDq8uOu3ISu3QBIZDvkCqHWrjeqXYiva8VusFDaOeqYLCcgopk32sE8dY2AmAow-4KDDo4h5D9BXhSbrMHUHTd-rbl2h5r2lW8PxMQPI5zze9y0hWJ5mcqQ"
+      image_url: "https://lh3.googleusercontent.com/aida-public/AB6AXuCQYkd020CmaW0tAAPtNq_kCmUFXCtqYQCBwpXfAS3nLwn_fNC_dScv2wGu-Y-30TcBZ5yQtqUu-L-vpXGcpolaN7Ach5E8xMhZGvF92SuHBL-jHELiYGMrgKeY6fcdfM4QVrcA03OlfG0evVbAAoEQDq8uOu3ISu3QBIZDvkCqHWrjeqXYiva8VusFDaOeqYLCcgopk32sE8dY2AmAow-4KDDo4h5D9BXhSbrMHUHTd-rbl2h5r2lW8PxMQPI5zze9y0hWJ5mcqQ",
+      weight: "1.85 кг",
+      length: "Размеры: 215 x 135 x 110 см. В сложенном виде: 45 x 15 см."
   },
   {
       id: 3,
@@ -25,7 +29,9 @@ const FALLBACK_GEAR = [
       category: "Рюкзаки",
       price_per_day: 850,
       rating: 4.8,
-      image_url: "https://lh3.googleusercontent.com/aida-public/AB6AXuApDTHrD44m1Vp4rEtoIiezcyXmHNjRDgKcT8wQXuzdPwVMp4K0JLNXLP9vkB_3HV2xi8qJ4A74gvcjRPs8EforJR-I_evwJaf45FQxWa6Nx6WdGsX1F411glzszUhT7rLfVMM_T4beZbm4OjYUQDwf8dmCkzF-Sr4DvOEVX6VcC_TSH3OZ2AX4QdD_RutIRO8bsrsnfOs1X-gtUydeyp2Mzb2jYo0fpOXIF7AupFI_Qz_oM-MEF26RfiIISWxNIlNKSQf4U9QzbA"
+      image_url: "https://lh3.googleusercontent.com/aida-public/AB6AXuApDTHrD44m1Vp4rEtoIiezcyXmHNjRDgKcT8wQXuzdPwVMp4K0JLNXLP9vkB_3HV2xi8qJ4A74gvcjRPs8EforJR-I_evwJaf45FQxWa6Nx6WdGsX1F411glzszUhT7rLfVMM_T4beZbm4OjYUQDwf8dmCkzF-Sr4DvOEVX6VcC_TSH3OZ2AX4QdD_RutIRO8bsrsnfOs1X-gtUydeyp2Mzb2jYo0fpOXIF7AupFI_Qz_oM-MEF26RfiIISWxNIlNKSQf4U9QzbA",
+      weight: "2.1 кг",
+      length: "Высота: 75 см, Ширина: 35 см, Глубина: 25 см."
   },
   {
       id: 4,
@@ -33,7 +39,9 @@ const FALLBACK_GEAR = [
       category: "Обувь",
       price_per_day: 1500,
       rating: 4.7,
-      image_url: "https://lh3.googleusercontent.com/aida-public/AB6AXuCUMzczSdwI2bk96yWEqvqu-KS8NoBhMGig3JcXg52fM-3-GEKzGsvBWyQe7d5rAW6bdFS62XJIw_pnBiPdKEw0Ytq-euJy_HcqwyY0_O55WqUNs0xRREyW9IuZKR7fm3aKkXH9uL56N1V0LuTFIL0rJUmZuzF_Q2XdCsXpAnFnJtMIa2yIHwud7gQwCJgmcqXux__5WufrTnEipmFjjs3-2rrEOR4iwvs7M9shyiu6xIQJucswwZTmbLoLIpVHCIjBPlGSaGgqVw"
+      image_url: "https://lh3.googleusercontent.com/aida-public/AB6AXuCUMzczSdwI2bk96yWEqvqu-KS8NoBhMGig3JcXg52fM-3-GEKzGsvBWyQe7d5rAW6bdFS62XJIw_pnBiPdKEw0Ytq-euJy_HcqwyY0_O55WqUNs0xRREyW9IuZKR7fm3aKkXH9uL56N1V0LuTFIL0rJUmZuzF_Q2XdCsXpAnFnJtMIa2yIHwud7gQwCJgmcqXux__5WufrTnEipmFjjs3-2rrEOR4iwvs7M9shyiu6xIQJucswwZTmbLoLIpVHCIjBPlGSaGgqVw",
+      weight: "1.2 кг (один ботинок, размер 42)",
+      length: "Региональные размеры доступны: 40 — 46."
   },
   {
       id: 5,
@@ -41,7 +49,9 @@ const FALLBACK_GEAR = [
       category: "Фонари",
       price_per_day: 300,
       rating: 4.9,
-      image_url: "https://lh3.googleusercontent.com/aida-public/AB6AXuBH5iJ0asxzYZANtvFKyDRz4mtdpURE8phxpWYKNP3QCmJz0w-0TAhxZLH7x9EB-2-t-LxsbmM10w_DFG5dWJJjFyUvC6eJouWuuMIedfQRPKyqJZShun5_RzkHfiDquuFgOPc7MQ5ClNOH6P3FcO2NArXnQbaCzmLQ1wLvi6xvhdiUbc7v916oWTLSn68h7DHH0mGR8pn6hmp9qbnNqyreNkh8peUXN-1DC4gtgktnfQUk1oKr4l66iaCBLvFA3RsaJEtpsaa3Ag"
+      image_url: "https://lh3.googleusercontent.com/aida-public/AB6AXuBH5iJ0asxzYZANtvFKyDRz4mtdpURE8phxpWYKNP3QCmJz0w-0TAhxZLH7x9EB-2-t-LxsbmM10w_DFG5dWJJjFyUvC6eJouWuuMIedfQRPKyqJZShun5_RzkHfiDquuFgOPc7MQ5ClNOH6P3FcO2NArXnQbaCzmLQ1wLvi6xvhdiUbc7v916oWTLSn68h7DHH0mGR8pn6hmp9qbnNqyreNkh8peUXN-1DC4gtgktnfQUk1oKr4l66iaCBLvFA3RsaJEtpsaa3Ag",
+      weight: "100 г",
+      length: "Универсальный размер ремешка. Габариты корпуса: 6 x 4 x 3.5 см."
   },
   {
       id: 6,
@@ -49,13 +59,16 @@ const FALLBACK_GEAR = [
       category: "Спальники",
       price_per_day: 950,
       rating: 5.0,
-      image_url: "https://lh3.googleusercontent.com/aida-public/AB6AXuDYspGKqudwjFD6286AW6dVZ-YX2ptZkQ_Up7E0IHRX3DOmPE5t4QZW_SoQ6UAqCvW83rjSs5ir3zLVmeiaKddvzyx3IFgtWbLHRBLjlgpDvBjZ5eWsYYojfiMGa7HH6U4O_RcS_7a1lJZCxMvWMoZpzt6tsycYUnzdt_v0wfAm8Roi1hwE7XA4pM7sojYGaGPMBmr74XH8cjtR3OB3re7G25yKt1shMm28AeysC4dw1erwB0c-4QqJlAIiELWpXnGz4SB2AdmazQ"
+      image_url: "https://lh3.googleusercontent.com/aida-public/AB6AXuDYspGKqudwjFD6286AW6dVZ-YX2ptZkQ_Up7E0IHRX3DOmPE5t4QZW_SoQ6UAqCvW83rjSs5ir3zLVmeiaKddvzyx3IFgtWbLHRBLjlgpDvBjZ5eWsYYojfiMGa7HH6U4O_RcS_7a1lJZCxMvWMoZpzt6tsycYUnzdt_v0wfAm8Roi1hwE7XA4pM7sojYGaGPMBmr74XH8cjtR3OB3re7G25yKt1shMm28AeysC4dw1erwB0c-4QqJlAIiELWpXnGz4SB2AdmazQ",
+      weight: "1.45 кг",
+      length: "Длина спальника: 210 см. Идеально подходит на рост до 195 см."
   }
 ];
 
 function ProductPage({ product, onBack, onBook }) {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [activeModal, setActiveModal] = useState(null); // 'weight' | 'length'
   
   const description = product.description || {
     1: "Легкие карбоновые палки для комфортного треккинга со сменными насадками и эргономичными ручками.",
@@ -103,9 +116,21 @@ function ProductPage({ product, onBack, onBook }) {
            </div>
         </div>
 
-        <p className="text-on-surface-variant mb-8 text-[15px] leading-relaxed font-body">
+        <p className="text-on-surface-variant mb-6 text-[15px] leading-relaxed font-body">
           {description}
         </p>
+
+        {/* Buttons: Weight & Length */}
+        <div className="flex gap-4 mb-8">
+          <button onClick={() => setActiveModal('weight')} className="flex-1 bg-surface-container-lowest border border-outline-variant/10 rounded-2xl py-3.5 px-4 flex items-center justify-center gap-2 hover:bg-surface-container transition-all shadow-sm active:scale-95">
+             <span className="material-symbols-outlined text-sky-700">scale</span>
+             <span className="font-headline font-bold text-sm text-on-surface">Вес</span>
+          </button>
+          <button onClick={() => setActiveModal('length')} className="flex-1 bg-surface-container-lowest border border-outline-variant/10 rounded-2xl py-3.5 px-4 flex items-center justify-center gap-2 hover:bg-surface-container transition-all shadow-sm active:scale-95">
+             <span className="material-symbols-outlined text-sky-700">straighten</span>
+             <span className="font-headline font-bold text-sm text-on-surface">Длина</span>
+          </button>
+        </div>
 
         {/* Booking settings */}
         <div className="bg-surface-container-lowest rounded-[2rem] p-5 shadow-sm border border-outline-variant/10 mb-6">
@@ -165,6 +190,38 @@ function ProductPage({ product, onBack, onBook }) {
             </button>
          </div>
       </div>
+
+      {/* Glassmorphic Modal overlay (Водяное окно) */}
+      {activeModal && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center px-6" onClick={() => setActiveModal(null)}>
+          {/* Glass background */}
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md transition-opacity"></div>
+          {/* Glass card modal */}
+          <div 
+            className="relative w-full max-w-sm glass-card border flex flex-col border-white/20 rounded-[2rem] p-6 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="font-headline font-extrabold text-xl text-sky-950 flex items-center gap-2">
+                 {activeModal === 'weight' ? (
+                   <><span className="material-symbols-outlined text-primary">scale</span>Вес</>
+                 ) : (
+                   <><span className="material-symbols-outlined text-primary">straighten</span>Длина</>
+                 )}
+              </h3>
+              <button onClick={() => setActiveModal(null)} className="w-9 h-9 flex items-center justify-center glass-card hover:bg-white/70 rounded-full transition-all text-sky-950">
+                 <span className="material-symbols-outlined text-[20px]">close</span>
+              </button>
+            </div>
+            <p className="font-body text-[16px] text-sky-950/80 font-bold mb-8 leading-relaxed">
+               {activeModal === 'weight' ? (product.weight || "Параметр устанавливается...") : (product.length || "Параметр устанавливается...")}
+            </p>
+            <button onClick={() => setActiveModal(null)} className="w-full bg-primary text-on-primary font-bold py-3.5 rounded-full hover:bg-sky-800 transition-all shadow-md mt-auto">
+               Понятно
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
