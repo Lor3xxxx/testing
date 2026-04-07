@@ -258,13 +258,20 @@ function BookingsView({ orders, isLoading, filter, setFilter, gearList, fallback
   )
 }
 
+function formatDatePill(dateStr) {
+  if (!dateStr) return "Выберите";
+  const d = new Date(dateStr);
+  const months = ['Янв', 'Фев', 'Марта', 'Апр', 'Мая', 'Июня', 'Июля', 'Авг', 'Сент', 'Окт', 'Нояб', 'Дек'];
+  return `${d.getDate()} ${months[d.getMonth()]}`;
+}
+
 function ProductPage({ product, onBack, onBook }) {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [activeModal, setActiveModal] = useState(null); // 'weight' | 'length'
   
   const description = product.description || {
-    1: "Легкие карбоновые палки для комфортного треккинга со сменными насадками и эргономичными ручками.",
+    1: "Легкие и прочные карбоновые палки для самых сложных маршрутов. Система быстрой регулировки FlickLock и эргономичные рукоятки из натуральной пробки обеспечат комфорт на любом рельефе Тянь-Шаня.",
     2: "Двухместная ультралегкая палатка для серьезных восхождений. Ветроустойчивая конструкция, простая установка.",
     3: "Профессиональный экспедиционный рюкзак объемом 65 литров с анатомической спинкой и водонепроницаемыми молниями.",
     4: "Теплые альпинистские ботинки для экстремальных условий и высотных восхождений. Совместимы с кошками.",
@@ -285,99 +292,130 @@ function ProductPage({ product, onBack, onBook }) {
   const todayStr = new Date().toISOString().split('T')[0];
 
   return (
-    <div className="min-h-[100dvh] bg-surface pb-28 animate-slide-up">
-      {/* Header with image */}
-      <div className="relative h-72 rounded-b-[2rem] overflow-hidden shadow-sm">
+    <div className="min-h-[100dvh] bg-[#fdfdfd] animate-slide-up pb-32">
+      {/* Header Image and Close button */}
+      <div className="relative h-64 bg-slate-200">
         <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
-        <div className="absolute top-0 left-0 w-full p-6 flex justify-between items-center bg-gradient-to-b from-black/60 to-transparent">
-          <button onClick={onBack} className="w-10 h-10 rounded-full flex items-center justify-center glass-card hover:bg-white/30 transition-all duration-300 transform active:scale-90 text-white backdrop-blur-xl border border-white/20">
-            <span className="material-symbols-outlined">arrow_back</span>
-          </button>
-        </div>
-        <div className="absolute bottom-4 right-4 glass-card px-3 py-1.5 rounded-full flex items-center gap-1 border border-white/20 backdrop-blur-xl">
-          <span className="material-symbols-outlined text-[14px] text-amber-400" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-          <span className="font-bold text-sky-900 text-sm">{product.rating.toFixed(1)}</span>
-        </div>
+        <button onClick={onBack} className="absolute top-5 right-5 w-8 h-8 rounded-lg bg-black/40 hover:bg-black/60 transition-all duration-300 transform active:scale-90 flex items-center justify-center text-white backdrop-blur-sm z-50">
+           <span className="material-symbols-outlined text-[20px]">close</span>
+        </button>
       </div>
 
-      <div className="px-5 mt-6 max-w-lg mx-auto">
-        <div className="flex justify-between items-start mb-3">
-           <h1 className="text-2xl font-headline font-extrabold text-on-surface leading-tight w-2/3">{product.name}</h1>
-           <div className="text-right">
-             <p className="text-primary font-extrabold text-2xl">{product.price_per_day}<span className="text-lg"> сом</span></p>
-             <p className="text-[11px] text-on-surface-variant font-medium">в день</p>
+      {/* Main Content Modal overlapping image slightly */}
+      <div className="bg-white rounded-t-[2.5rem] px-7 pt-8 relative -mt-8 shadow-[0_-10px_20px_rgba(0,0,0,0.05)] z-20">
+        
+        {/* Pill and Price */}
+        <div className="flex justify-between items-start mb-6">
+           <div className="bg-[#e4ebf5] text-[#5578a1] font-bold uppercase tracking-widest text-[9px] px-3 py-1.5 rounded-full inline-flex mt-1">
+              {product.category} SERIES
+           </div>
+           
+           <div className="flex flex-col items-end">
+              <span className="text-[34px] font-extrabold text-[#0d6978] leading-none mb-1">{product.price_per_day}</span>
+              <span className="text-[12px] font-extrabold text-[#0d6978] uppercase tracking-widest leading-none mb-1">СОМ</span>
+              <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">за сутки</span>
            </div>
         </div>
 
-        <p className="text-on-surface-variant mb-6 text-[15px] leading-relaxed font-body">
+        {/* Title */}
+        <h1 className="text-[32px] font-bold text-slate-900 leading-[1.1] mb-6 tracking-tight pr-6">
+          {product.name}
+        </h1>
+
+        {/* Description */}
+        <p className="text-slate-600 text-[15px] leading-[1.6] mb-8 font-medium">
           {description}
         </p>
 
-        {/* Buttons: Weight & Length */}
-        <div className="flex gap-4 mb-8">
-          <button onClick={() => setActiveModal('weight')} className="flex-1 bg-surface-container-lowest border border-outline-variant/10 rounded-2xl py-3.5 px-4 flex items-center justify-center gap-2 hover:bg-surface-container transition-all duration-300 transform active:scale-95 shadow-sm">
-             <span className="material-symbols-outlined text-primary">scale</span>
-             <span className="font-headline font-bold text-sm text-on-surface">Вес</span>
+        {/* Weight & Length secondary buttons */}
+        <div className="flex gap-3 mb-8">
+          <button onClick={() => setActiveModal('weight')} className="flex-1 bg-white border border-slate-200 rounded-2xl py-3 px-3 flex items-center justify-center gap-2 hover:bg-slate-50 transition-all duration-300 transform active:scale-95 shadow-sm">
+             <span className="material-symbols-outlined text-[#0d6978] text-[20px]">scale</span>
+             <span className="font-bold text-[13px] text-slate-700">Вес</span>
           </button>
-          <button onClick={() => setActiveModal('length')} className="flex-1 bg-surface-container-lowest border border-outline-variant/10 rounded-2xl py-3.5 px-4 flex items-center justify-center gap-2 hover:bg-surface-container transition-all duration-300 transform active:scale-95 shadow-sm">
-             <span className="material-symbols-outlined text-primary">straighten</span>
-             <span className="font-headline font-bold text-sm text-on-surface">Длина</span>
+          <button onClick={() => setActiveModal('length')} className="flex-1 bg-white border border-slate-200 rounded-2xl py-3 px-3 flex items-center justify-center gap-2 hover:bg-slate-50 transition-all duration-300 transform active:scale-95 shadow-sm">
+             <span className="material-symbols-outlined text-[#0d6978] text-[20px]">straighten</span>
+             <span className="font-bold text-[13px] text-slate-700">Длина</span>
           </button>
         </div>
 
-        {/* Booking settings */}
-        <div className="bg-surface-container-lowest rounded-[2rem] p-5 shadow-sm border border-outline-variant/10 mb-6 relative z-10">
-          <h2 className="font-headline font-bold text-[17px] mb-4 text-on-surface">Параметры аренды</h2>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="min-w-0">
-              <label className="block text-[11px] sm:text-[12px] font-bold text-on-surface-variant mb-1.5 ml-1 uppercase tracking-wide">Начало</label>
-              <input 
-                type="date" 
-                min={todayStr}
-                value={startDate} 
-                onChange={e => {
-                  setStartDate(e.target.value);
-                  if (endDate && e.target.value > endDate) {
-                    setEndDate('');
-                  }
-                }}
-                className="block w-full min-w-0 bg-surface-container-low py-3.5 px-2.5 sm:px-4 rounded-xl border-none focus:ring-2 focus:ring-inverse-primary/30 text-on-surface text-[13px] sm:text-sm font-semibold transition-all appearance-none"
-              />
-            </div>
-            <div className="min-w-0">
-               <label className="block text-[11px] sm:text-[12px] font-bold text-on-surface-variant mb-1.5 ml-1 uppercase tracking-wide">Окончание</label>
-              <input 
-                type="date" 
-                min={startDate ? (() => {
-                  let d = new Date(startDate);
-                  d.setDate(d.getDate() + 1);
-                  return d.toISOString().split('T')[0];
-                })() : todayStr}
-                value={endDate} 
-                onChange={e => setEndDate(e.target.value)}
-                className="block w-full min-w-0 bg-surface-container-low py-3.5 px-2.5 sm:px-4 rounded-xl border-none focus:ring-2 focus:ring-inverse-primary/30 text-on-surface text-[13px] sm:text-sm font-semibold transition-all appearance-none"
-              />
-            </div>
-          </div>
-
-          <div className="mt-5 bg-primary-container/10 rounded-2xl p-4 flex justify-between items-center transition-all border border-primary/10">
-             <div>
-               <p className="text-sm font-bold text-on-surface">Итого за <span className="text-primary">{days} дней</span>:</p>
-             </div>
-             <div>
-               <p className="text-xl font-extrabold text-primary">{days * product.price_per_day} <span className="text-sm">сом</span></p>
-             </div>
-          </div>
+        {/* Rental Period Box */}
+        <div className="bg-[#f5f6f8] rounded-[2rem] p-6 mb-8">
+           <div className="flex items-center gap-2.5 mb-5 text-slate-800">
+              <span className="material-symbols-outlined text-[20px] text-slate-700">calendar_month</span>
+              <span className="font-extrabold text-[12px] uppercase tracking-widest">Период аренды</span>
+           </div>
+           
+           <div className="grid grid-cols-2 gap-5">
+              <div>
+                 <span className="text-[10px] font-bold text-[#647b97] uppercase tracking-widest mb-1.5 block">Начало</span>
+                 <div className="relative">
+                    <input 
+                      type="date" 
+                      min={todayStr}
+                      value={startDate} 
+                      onChange={e => {
+                        setStartDate(e.target.value);
+                        if (endDate && e.target.value > endDate) setEndDate('');
+                      }}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
+                    />
+                    <div className="bg-white rounded-[1.25rem] py-3.5 px-4 flex justify-between items-center shadow-sm relative z-0">
+                       <span className="text-slate-900 font-bold text-[14px]">
+                          {formatDatePill(startDate)}
+                       </span>
+                       <span className="material-symbols-outlined text-[#0d6978] text-[20px]">keyboard_arrow_down</span>
+                    </div>
+                 </div>
+              </div>
+              <div>
+                 <span className="text-[10px] font-bold text-[#647b97] uppercase tracking-widest mb-1.5 block">Конец</span>
+                 <div className="relative">
+                    <input 
+                      type="date" 
+                      min={startDate ? (() => {
+                        let d = new Date(startDate);
+                        d.setDate(d.getDate() + 1);
+                        return d.toISOString().split('T')[0];
+                      })() : todayStr}
+                      value={endDate} 
+                      onChange={e => setEndDate(e.target.value)}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
+                    />
+                    <div className="bg-white rounded-[1.25rem] py-3.5 px-4 flex justify-between items-center shadow-sm relative z-0">
+                       <span className="text-slate-900 font-bold text-[14px]">
+                          {formatDatePill(endDate)}
+                       </span>
+                       <span className="material-symbols-outlined text-[#0d6978] text-[20px]">keyboard_arrow_down</span>
+                    </div>
+                 </div>
+              </div>
+           </div>
         </div>
+
+        {/* Totals Block */}
+        <div className="flex items-center pt-2 pb-6">
+           <div className="flex-1">
+              <div className="text-[10px] font-bold text-[#647b97] uppercase tracking-widest mb-1.5">Дни</div>
+              <div className="text-[22px] font-extrabold text-slate-900 leading-none">{days} <span className="text-[16px] font-bold">суток</span></div>
+           </div>
+           <div className="w-[1px] h-10 bg-slate-200 mx-5"></div>
+           <div className="flex-[1.5]">
+              <div className="text-[10px] font-bold text-[#647b97] uppercase tracking-widest mb-1.5">Итого к оплате</div>
+              <div className="text-[24px] font-extrabold text-[#0d6978] leading-none">{days * product.price_per_day} <span className="text-[15px] font-extrabold uppercase">сом</span></div>
+           </div>
+        </div>
+
       </div>
 
       {/* Sticky Book Button */}
-      <div className="fixed bottom-0 left-0 w-full bg-surface/90 backdrop-blur-lg pt-4 pb-6 border-t border-surface-container z-40">
-         <div className="max-w-lg mx-auto px-5">
+      <div className="fixed bottom-0 left-0 w-full bg-white/90 backdrop-blur-xl pt-3 pb-6 z-40">
+         <div className="max-w-lg mx-auto px-6">
             <button 
               onClick={() => onBook({...product, startDate, endDate, days, total: days * product.price_per_day})}
               disabled={days <= 0}
-              className={`w-full py-4 rounded-full font-bold text-[16px] transition-all duration-300 transform active:scale-[0.96] ${days > 0 ? "bg-primary text-on-primary hover:bg-sky-800 shadow-[0_8px_20px_rgba(0,101,123,0.3)]" : "bg-surface-variant/70 text-on-surface-variant/50 shadow-none cursor-not-allowed"}`}
+              className={`w-full py-4.5 rounded-[1.5rem] font-bold text-[16px] transition-all duration-300 transform active:scale-[0.96] ${days > 0 ? "bg-[#e4ebf5] text-[#0d6978] hover:bg-[#d6e2ef]" : "bg-slate-100 text-slate-400 cursor-not-allowed"}`}
+              style={{ padding: "18px" }}
             >
               Забронировать
             </button>
@@ -392,25 +430,25 @@ function ProductPage({ product, onBack, onBook }) {
           
           {/* Solid White Card Modal */}
           <div 
-            className="relative w-full max-w-sm bg-surface-container-lowest rounded-[2rem] p-6 transition-all animate-zoom-in shadow-[0_20px_40px_rgba(0,0,0,0.5)]"
+            className="relative w-full max-w-sm bg-white rounded-[2rem] p-6 transition-all animate-zoom-in shadow-[0_20px_40px_rgba(0,0,0,0.5)]"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-6">
-              <h3 className="font-headline font-extrabold text-[19px] text-on-surface flex items-center gap-2">
+              <h3 className="font-extrabold text-[19px] text-slate-900 flex items-center gap-2">
                  {activeModal === 'weight' ? (
-                   <><span className="material-symbols-outlined text-primary">scale</span>Вес</>
+                   <><span className="material-symbols-outlined text-[#0d6978]">scale</span>Вес</>
                  ) : (
-                   <><span className="material-symbols-outlined text-primary">straighten</span>Длина</>
+                   <><span className="material-symbols-outlined text-[#0d6978]">straighten</span>Длина</>
                  )}
               </h3>
-              <button onClick={() => setActiveModal(null)} className="w-9 h-9 flex items-center justify-center bg-surface-container-low hover:bg-surface-container-high rounded-full transition-all duration-300 transform active:scale-90 active:rotate-90 text-on-surface-variant">
+              <button onClick={() => setActiveModal(null)} className="w-9 h-9 flex items-center justify-center bg-slate-100 hover:bg-slate-200 rounded-full transition-all duration-300 transform active:scale-90 active:rotate-90 text-slate-500">
                  <span className="material-symbols-outlined text-[20px]">close</span>
               </button>
             </div>
-            <p className="font-body text-[16px] text-on-surface-variant mb-8 leading-relaxed">
+            <p className="text-[16px] text-slate-600 mb-8 leading-relaxed font-medium">
                {activeModal === 'weight' ? (product.weight || "Параметр устанавливается...") : (product.length || "Параметр устанавливается...")}
             </p>
-            <button onClick={() => setActiveModal(null)} className="w-full bg-primary text-on-primary font-bold py-3.5 rounded-full hover:bg-sky-800 transition-all duration-300 transform active:scale-95 shadow-md">
+            <button onClick={() => setActiveModal(null)} className="w-full bg-[#0d6978] text-white font-bold py-3.5 rounded-full hover:bg-[#0a5360] transition-all duration-300 transform active:scale-95 shadow-md">
                Понятно
             </button>
           </div>
