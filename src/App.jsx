@@ -306,8 +306,14 @@ function ProductPage({ product, onBack, onBook }) {
         
         {/* Pill and Price */}
         <div className="flex justify-between items-start mb-6">
-           <div className="bg-[#e4ebf5] text-[#5578a1] font-bold uppercase tracking-widest text-[9px] px-3 py-1.5 rounded-full inline-flex mt-1">
-              {product.category} SERIES
+           <div className="flex flex-col gap-2 mt-1">
+              <div className="bg-[#e4ebf5] text-[#5578a1] font-bold uppercase tracking-widest text-[9px] px-3 py-1.5 rounded-full self-start">
+                 {product.category} SERIES
+              </div>
+              <div className="bg-emerald-50 text-emerald-600 border border-emerald-100 font-bold uppercase tracking-widest text-[9px] px-3 py-1.5 rounded-full self-start flex items-center gap-1.5">
+                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                 В наличии: {product.stock !== undefined ? product.stock : 5} шт.
+              </div>
            </div>
            
            <div className="flex flex-col items-end">
