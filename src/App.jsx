@@ -550,7 +550,7 @@ function ProfileView({ orders, setTab }) {
       </div>
       
       <div className="bg-white rounded-[2rem] overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col border border-slate-100 mb-8">
-         <button onClick={() => setTab('bookings')} className="flex items-center justify-between p-5 border-b border-slate-100 hover:bg-slate-50 transition-colors transform active:bg-slate-100">
+         <button onClick={() => setTab('bookings')} className="w-full flex items-center justify-between p-5 border-b border-slate-100 hover:bg-slate-50 transition-colors transform active:bg-slate-100">
             <div className="flex items-center gap-4">
                <div className="w-10 h-10 rounded-full bg-[#f4f7fb] flex items-center justify-center text-[#0d6978]">
                    <span className="material-symbols-outlined text-[20px]">inventory_2</span>
@@ -559,7 +559,7 @@ function ProfileView({ orders, setTab }) {
             </div>
             <span className="material-symbols-outlined text-[#647b97]">chevron_right</span>
          </button>
-         <button onClick={() => setTab('my_reviews')} className="flex items-center justify-between p-5 border-b border-slate-100 hover:bg-slate-50 transition-colors transform active:bg-slate-100">
+         <button onClick={() => setTab('my_reviews')} className="w-full flex items-center justify-between p-5 border-b border-slate-100 hover:bg-slate-50 transition-colors transform active:bg-slate-100">
             <div className="flex items-center gap-4">
                <div className="w-10 h-10 rounded-full bg-[#f4f7fb] flex items-center justify-center text-[#0d6978]">
                    <span className="material-symbols-outlined text-[20px]">star</span>
@@ -568,7 +568,7 @@ function ProfileView({ orders, setTab }) {
             </div>
             <span className="material-symbols-outlined text-[#647b97]">chevron_right</span>
          </button>
-         <button className="flex items-center justify-between p-5 hover:bg-slate-50 transition-colors transform active:bg-slate-100">
+         <button className="w-full flex items-center justify-between p-5 hover:bg-slate-50 transition-colors transform active:bg-slate-100">
             <div className="flex items-center gap-4">
                <div className="w-10 h-10 rounded-full bg-[#f4f7fb] flex items-center justify-center text-[#0d6978]">
                    <span className="material-symbols-outlined text-[20px]">gavel</span>
