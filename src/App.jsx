@@ -464,6 +464,59 @@ function ProductPage({ product, onBack, onBook }) {
   );
 }
 
+function ProfileView({ orders, setTab }) {
+  const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user || { first_name: 'Пользователь', last_name: '', photo_url: '' };
+  
+  return (
+    <div className="pt-2 px-1 animate-slide-up pb-28">
+      <h1 className="text-3xl font-extrabold font-headline tracking-tight text-slate-900 mb-6 leading-tight">Профиль</h1>
+      <div className="bg-white rounded-[2rem] p-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)] mb-6 flex items-center gap-5 border border-slate-100">
+         <div className="w-16 h-16 rounded-full overflow-hidden bg-[#e4ebf5] flex-shrink-0 flex items-center justify-center">
+             {tgUser.photo_url ? (
+                 <img src={tgUser.photo_url} alt="Аватар" className="w-full h-full object-cover" />
+             ) : (
+                 <span className="material-symbols-outlined text-3xl text-[#5578a1]">person</span>
+             )}
+         </div>
+         <div className="min-w-0">
+            <h2 className="text-[20px] font-extrabold text-slate-900 truncate">{tgUser.first_name} {tgUser.last_name || ''}</h2>
+            <p className="text-[13px] font-bold text-[#647b97] mt-0.5">{orders.length} {orders.length === 1 ? 'заказ' : (orders.length > 1 && orders.length < 5) ? 'заказа' : 'заказов'}</p>
+         </div>
+      </div>
+      
+      <div className="bg-white rounded-[2rem] overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col border border-slate-100 mb-8">
+         <button onClick={() => setTab('bookings')} className="flex items-center justify-between p-5 border-b border-slate-100 hover:bg-slate-50 transition-colors transform active:bg-slate-100">
+            <div className="flex items-center gap-4">
+               <div className="w-10 h-10 rounded-full bg-[#f4f7fb] flex items-center justify-center text-[#0d6978]">
+                   <span className="material-symbols-outlined text-[20px]">inventory_2</span>
+               </div>
+               <span className="font-extrabold text-slate-800 text-[15px]">Мои брони</span>
+            </div>
+            <span className="material-symbols-outlined text-[#647b97]">chevron_right</span>
+         </button>
+         <button className="flex items-center justify-between p-5 border-b border-slate-100 hover:bg-slate-50 transition-colors transform active:bg-slate-100">
+            <div className="flex items-center gap-4">
+               <div className="w-10 h-10 rounded-full bg-[#f4f7fb] flex items-center justify-center text-[#0d6978]">
+                   <span className="material-symbols-outlined text-[20px]">star</span>
+               </div>
+               <span className="font-extrabold text-slate-800 text-[15px]">Отзывы</span>
+            </div>
+            <span className="material-symbols-outlined text-[#647b97]">chevron_right</span>
+         </button>
+         <button className="flex items-center justify-between p-5 hover:bg-slate-50 transition-colors transform active:bg-slate-100">
+            <div className="flex items-center gap-4">
+               <div className="w-10 h-10 rounded-full bg-[#f4f7fb] flex items-center justify-center text-[#0d6978]">
+                   <span className="material-symbols-outlined text-[20px]">gavel</span>
+               </div>
+               <span className="font-extrabold text-slate-800 text-[15px]">Правила аренды</span>
+            </div>
+            <span className="material-symbols-outlined text-[#647b97]">chevron_right</span>
+         </button>
+      </div>
+    </div>
+  )
+}
+
 export default function App() {
   const [gear, setGear] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -493,7 +546,7 @@ export default function App() {
   }, [selectedCategory, searchQuery]);
 
   useEffect(() => {
-    if (activeTab === 'bookings') {
+    if (activeTab === 'bookings' || activeTab === 'profile') {
       fetchOrders();
     }
   }, [activeTab]);
@@ -692,12 +745,9 @@ export default function App() {
              gearList={gear} 
              fallbackGear={FALLBACK_GEAR} 
           />
-        ) : (
-          <div className="flex flex-col items-center justify-center pt-20 animate-fade-in text-on-surface-variant">
-             <span className="material-symbols-outlined text-5xl opacity-40 mb-2">construction</span>
-             <p className="font-bold">Страница в разработке</p>
-          </div>
-        )}
+        ) : activeTab === 'profile' ? (
+          <ProfileView orders={orders} setTab={setActiveTab} />
+        ) : null}
       </main>
 
       {/* Bottom Navigation Bar */}
