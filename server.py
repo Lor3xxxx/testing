@@ -1,5 +1,8 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+import uuid
+import datetime
 
 app = FastAPI()
 
@@ -62,10 +65,6 @@ MOCK_GEAR = [
     }
 ]
 
-from pydantic import BaseModel
-import uuid
-import datetime
-
 class OrderCreate(BaseModel):
     user_id: str
     item_id: int
@@ -74,7 +73,23 @@ class OrderCreate(BaseModel):
     total_price: int
     payment_method: str
 
+class ReviewCreate(BaseModel):
+    item_id: int
+    user_id: str
+    rating: int
+    text: str
+
 orders_db = []
+reviews_db = [
+    {
+        "id": "mock-rev-1",
+        "item_id": 1,
+        "user_id": "test_user_123",
+        "rating": 5,
+        "text": "Отличные палки, прошли с ними 30 км, никаких нареканий!",
+        "created_at": "2026-04-10T10:00:00"
+    }
+]
 
 @app.post("/api/orders")
 async def create_order(order: OrderCreate):
@@ -110,3 +125,24 @@ async def get_gear(category: str = "Все", search: str = ""):
     if search:
         filtered = [g for g in filtered if search.lower() in g["name"].lower()]
     return list(filtered)
+
+@app.post("/api/reviews")
+async def create_review(review: ReviewCreate):
+    new_rev = review.model_dump()
+    new_rev["id"] = str(uuid.uuid4())
+    new_rev["created_at"] = datetime.datetime.now().isoformat()
+    reviews_db.append(new_rev)
+    return new_rev
+
+@app.get("/api/reviews")
+async def get_reviews(item_id: int = None, user_id: str = None):
+    res = reviews_db
+    if item_id is not None:
+        res = [r for r in res if r["item_id"] == item_id]
+    if user_id is not None:
+        res = [r for r in res if r["user_id"] == user_id]
+    return sorted(res, key=lambda x: x["created_at"], reverse=True)
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)

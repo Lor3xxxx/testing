@@ -190,7 +190,67 @@ function CheckoutPage({ checkoutData, onBack, onConfirm }) {
   );
 }
 
-function BookingsView({ orders, isLoading, filter, setFilter, gearList, fallbackGear }) {
+
+function ReviewFormModal({ order, onClose, onSubmit }) {
+  const [rating, setRating] = useState(5);
+  const [text, setText] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    try {
+      const user_id = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || "test_user_123";
+      await fetch('http://localhost:8000/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          item_id: order.item_id,
+          user_id: user_id,
+          rating: rating,
+          text: text
+        })
+      });
+      onSubmit();
+    } catch (e) {
+      console.error(e);
+      alert('Ошибка при отправке отзыва');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[110] flex items-end sm:items-center justify-center p-4">
+       <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity animate-fade-in" onClick={onClose}></div>
+       <div className="bg-white w-full max-w-sm rounded-[2rem] p-6 relative z-10 animate-slide-up shadow-2xl">
+          <div className="flex justify-between items-center mb-6">
+             <h3 className="text-[20px] font-extrabold text-slate-900">Оцените аренду</h3>
+             <button onClick={onClose} className="w-8 h-8 rounded-full bg-slate-100 flex justify-center items-center text-slate-500 hover:bg-slate-200">
+                <span className="material-symbols-outlined text-[18px]">close</span>
+             </button>
+          </div>
+          <div className="flex justify-center gap-2 mb-6">
+             {[1, 2, 3, 4, 5].map(star => (
+                <button key={star} onClick={() => setRating(star)} className="focus:outline-none transform transition active:scale-90">
+                   <span className={`material-symbols-outlined text-[40px] ${star <= rating ? 'text-[#ffb300]' : 'text-slate-200'}`} style={{ fontVariationSettings: star <= rating ? "'FILL' 1" : "'FILL' 0" }}>star</span>
+                </button>
+             ))}
+          </div>
+          <textarea 
+             value={text}
+             onChange={e => setText(e.target.value)}
+             placeholder="Что вам понравилось, а что стоит улучшить?"
+             className="w-full bg-[#f4f7fb] border border-slate-100 rounded-2xl p-4 text-[15px] font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0d6978]/30 resize-none h-32 mb-6"
+          />
+          <button onClick={handleSubmit} disabled={isSubmitting || text.trim() === ''} className="w-full bg-[#0d6978] text-white py-4 rounded-2xl font-bold hover:bg-[#0a5360] transition disabled:opacity-50 disabled:cursor-not-allowed text-[15px]">
+             {isSubmitting ? 'Отправка...' : 'Отправить отзыв'}
+          </button>
+       </div>
+    </div>
+  );
+}
+
+function BookingsView({ orders, isLoading, filter, setFilter, gearList, fallbackGear }) {\n  const [reviewOrder, setReviewOrder] = useState(null);
   const displayedOrders = orders.filter(o => o.status === filter);
 
   return (
@@ -249,6 +309,11 @@ function BookingsView({ orders, isLoading, filter, setFilter, gearList, fallback
                           <div className="px-3 py-1 rounded-full bg-slate-500/10 text-slate-500 border border-slate-500/20 text-[11px] font-extrabold uppercase tracking-wider">Завершен</div>
                        )}
                     </div>
+                    {order.status === 'completed' && (
+                        <button onClick={() => setReviewOrder(order)} className="w-full py-2.5 mt-1 bg-[#f4f7fb] hover:bg-[#e4ebf5] text-[#5578a1] font-bold rounded-xl text-[13px] border border-[#e4ebf5] transition-colors">
+                            Оставить отзыв
+                        </button>
+                    )}
                  </div>
                )
             })}
@@ -268,7 +333,7 @@ function formatDatePill(dateStr) {
 function ProductPage({ product, onBack, onBook }) {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const [activeModal, setActiveModal] = useState(null); // 'weight' | 'length'
+  const [activeModal, setActiveModal] = useState(null);\n  const [reviews, setReviews] = useState([]);\n  useEffect(() => {\n    fetch(`http://localhost:8000/api/reviews?item_id=${product.id}`).then(r => r.json()).then(d => setReviews(d)).catch(e => console.error(e));\n  }, [product.id]);
   
   const description = product.description || {
     1: "Легкие и прочные карбоновые палки для самых сложных маршрутов. Система быстрой регулировки FlickLock и эргономичные рукоятки из натуральной пробки обеспечат комфорт на любом рельефе Тянь-Шаня.",
