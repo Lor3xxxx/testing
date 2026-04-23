@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { API_BASE } from './api';
 import { useTheme } from './hooks/useTheme';
+import { useFavorites } from './hooks/useFavorites';
 import WeatherWidget from './components/WeatherWidget';
 import WeatherPage from './components/WeatherPage';
 
@@ -542,7 +543,7 @@ function ProductPage({ product, onBack, onBook }) {
   );
 }
 
-function ProfileView({ orders, setTab }) {
+function ProfileView({ orders, setTab, favorites }) {
   const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user || { first_name: 'Пользователь', last_name: '', photo_url: '' };
   
   return (
@@ -561,6 +562,8 @@ function ProfileView({ orders, setTab }) {
             <p className="text-[13px] font-bold text-on-surface-variant mt-0.5">{orders.length} {orders.length === 1 ? 'заказ' : (orders.length > 1 && orders.length < 5) ? 'заказа' : 'заказов'}</p>
          </div>
       </div>
+
+      <Achievements orders={orders} favorites={favorites} />
       
       <div className="bg-surface-container-lowest rounded-[2rem] overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col border border-outline-variant mb-8">
          <button onClick={() => setTab('bookings')} className="w-full flex items-center justify-between p-5 border-b border-outline-variant hover:bg-surface-container-low transition-colors transform active:bg-surface-container">
@@ -675,7 +678,11 @@ export default function App() {
   const [orders, setOrders] = useState([]);
   const [isOrdersLoading, setIsOrdersLoading] = useState(false);
   const [orderFilter, setOrderFilter] = useState('active');
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const [hideOutOfStock, setHideOutOfStock] = useState(false);
+  const [sortBy, setSortBy] = useState('default');
   const { theme, toggleTheme } = useTheme();
+  const { favorites, toggle: toggleFavorite, isFavorite } = useFavorites();
 
   useEffect(() => {
     if (window.Telegram && window.Telegram.WebApp) {
@@ -877,8 +884,41 @@ export default function App() {
               </div>
             </section>
 
+            {/* Filters & Sort */}
+            <section className="mt-6 flex items-center gap-3 animate-fade-in">
+              <button
+                onClick={() => { setShowFavoritesOnly(v => !v); try { window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('light'); } catch(e) {} }}
+                className={`flex items-center gap-1.5 px-4 py-2.5 rounded-full font-semibold text-sm transition-all transform active:scale-95 ${showFavoritesOnly ? 'bg-error/10 text-error border border-error/20' : 'bg-surface-container-lowest text-on-surface-variant border border-outline-variant/10'}`}
+              >
+                <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: showFavoritesOnly ? "'FILL' 1" : "'FILL' 0" }}>favorite</span>
+                Избранное
+              </button>
+
+              <button
+                onClick={() => { setHideOutOfStock(v => !v); try { window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('light'); } catch(e) {} }}
+                className={`flex items-center gap-1.5 px-4 py-2.5 rounded-full font-semibold text-sm transition-all transform active:scale-95 ${hideOutOfStock ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20' : 'bg-surface-container-lowest text-on-surface-variant border border-outline-variant/10'}`}
+              >
+                <span className="material-symbols-outlined text-[16px]">inventory_2</span>
+                В наличии
+              </button>
+
+              <div className="flex-1"></div>
+
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="bg-surface-container-lowest text-on-surface font-semibold text-sm rounded-full px-4 py-2.5 border border-outline-variant/10 outline-none appearance-none pr-8"
+                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center' }}
+              >
+                <option value="default">По умолчанию</option>
+                <option value="price_asc">Цена ↑</option>
+                <option value="price_desc">Цена ↓</option>
+                <option value="rating">Рейтинг</option>
+              </select>
+            </section>
+
             {/* Gear Grid */}
-            <section className="mt-10 grid grid-cols-2 gap-4 pb-28 animate-slide-up">
+            <section className="mt-6 grid grid-cols-2 gap-4 pb-28 animate-slide-up">
               {isLoading ? (
                 // Skeleton Loading State
                 [1, 2, 3, 4].map((n) => (
@@ -888,12 +928,36 @@ export default function App() {
                     <div className="h-4 bg-surface-variant rounded w-1/2"></div>
                   </div>
                 ))
-              ) : gear.length === 0 ? (
+              ) : (() => {
+                let displayed = gear;
+                if (showFavoritesOnly) {
+                  displayed = displayed.filter(g => isFavorite(g.id));
+                }
+                if (hideOutOfStock) {
+                  displayed = displayed.filter(g => (g.stock ?? 5) > 0);
+                }
+                if (sortBy === 'price_asc') {
+                  displayed = [...displayed].sort((a, b) => a.price_per_day - b.price_per_day);
+                } else if (sortBy === 'price_desc') {
+                  displayed = [...displayed].sort((a, b) => b.price_per_day - a.price_per_day);
+                } else if (sortBy === 'rating') {
+                  displayed = [...displayed].sort((a, b) => b.rating - a.rating);
+                }
+                return displayed;
+              })().length === 0 ? (
                 <div className="col-span-2 text-center text-on-surface-variant py-10 font-medium">
                   Ничего не найдено по вашему запросу.
                 </div>
               ) : (
-                gear.map((item) => (
+                (() => {
+                  let displayed = gear;
+                  if (showFavoritesOnly) displayed = displayed.filter(g => isFavorite(g.id));
+                  if (hideOutOfStock) displayed = displayed.filter(g => (g.stock ?? 5) > 0);
+                  if (sortBy === 'price_asc') displayed = [...displayed].sort((a, b) => a.price_per_day - b.price_per_day);
+                  else if (sortBy === 'price_desc') displayed = [...displayed].sort((a, b) => b.price_per_day - a.price_per_day);
+                  else if (sortBy === 'rating') displayed = [...displayed].sort((a, b) => b.rating - a.rating);
+                  return displayed;
+                })().map((item) => (
                   <div
                     key={item.id}
                     onClick={() => handleProductClick(item.id)}
@@ -905,6 +969,12 @@ export default function App() {
                         alt={item.name}
                         src={item.image_url}
                       />
+                      <button
+                        onClick={(e) => { e.stopPropagation(); toggleFavorite(item.id); try { window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('light'); } catch(e) {} }}
+                        className="absolute top-3 left-3 w-8 h-8 rounded-full bg-surface-container-lowest/70 backdrop-blur-md flex items-center justify-center border border-snow/20 transition-transform active:scale-90"
+                      >
+                        <span className="material-symbols-outlined text-[16px] text-error" style={{ fontVariationSettings: isFavorite(item.id) ? "'FILL' 1" : "'FILL' 0" }}>favorite</span>
+                      </button>
                       <div className="absolute top-3 right-3 bg-surface-container-lowest/50 backdrop-blur-md px-2 py-1 rounded-full flex items-center gap-1 border border-snow/30">
                         <span className="material-symbols-outlined text-[14px] text-amber-500" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
                         <span className="text-[12px] font-extrabold text-primary">{item.rating.toFixed(1)}</span>
@@ -935,7 +1005,7 @@ export default function App() {
              fallbackGear={FALLBACK_GEAR} 
           />
         ) : activeTab === 'profile' ? (
-          <ProfileView orders={orders} setTab={setActiveTab} />
+          <ProfileView orders={orders} setTab={setActiveTab} favorites={favorites} />
         ) : activeTab === 'my_reviews' ? (
           <MyReviewsView setTab={setActiveTab} gear={gear.length > 0 ? gear : FALLBACK_GEAR} />
         ) : activeTab === 'weather' ? (
