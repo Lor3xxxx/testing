@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { API_BASE } from './api';
+import { useTheme } from './hooks/useTheme';
 
 const CATEGORIES = ['Все', 'Палатки', 'Рюкзаки', 'Спальники', 'Обувь', 'Палки', 'Фонари'];
 
@@ -73,6 +74,7 @@ function CheckoutPage({ checkoutData, onBack, onConfirm }) {
   const methods = ['MBank', 'O!Bank', 'Наличные при получении'];
 
   const handleSubmit = async () => {
+    try { window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('medium'); } catch(e) {}
     setIsSubmitting(true);
     try {
       const user_id = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || "test_user_123";
@@ -489,7 +491,10 @@ function ProductPage({ product, onBack, onBook }) {
       <div className="fixed bottom-0 left-0 w-full bg-surface-container-lowest/90 backdrop-blur-xl pt-3 pb-6 z-40">
          <div className="max-w-lg mx-auto px-6">
             <button 
-              onClick={() => onBook({...product, startDate, endDate, days, total: days * product.price_per_day})}
+              onClick={() => {
+                try { window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('medium'); } catch(e) {}
+                onBook({...product, startDate, endDate, days, total: days * product.price_per_day});
+              }}
               disabled={days <= 0}
               className={`w-full py-4.5 rounded-[1.5rem] font-bold text-[16px] transition-all duration-300 transform active:scale-[0.96] ${days > 0 ? "bg-primary-container text-primary hover:bg-primary-container/40" : "bg-surface-container text-on-surface-variant/60 cursor-not-allowed"}`}
               style={{ padding: "18px" }}
@@ -668,18 +673,48 @@ export default function App() {
   const [orders, setOrders] = useState([]);
   const [isOrdersLoading, setIsOrdersLoading] = useState(false);
   const [orderFilter, setOrderFilter] = useState('active');
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     if (window.Telegram && window.Telegram.WebApp) {
       window.Telegram.WebApp.expand();
-      try {
-        window.Telegram.WebApp.setHeaderColor('#0E1117');
-        window.Telegram.WebApp.setBackgroundColor('#0E1117');
-      } catch (e) {
-        console.log("Could not set header color", e);
-      }
     }
   }, []);
+
+  // Telegram BackButton
+  useEffect(() => {
+    const tg = window.Telegram?.WebApp;
+    if (!tg) return;
+
+    const canGoBack = selectedProductId !== null || checkoutData !== null || activeTab !== 'catalog';
+
+    if (canGoBack) {
+      tg.BackButton.show();
+      const handleBack = () => {
+        if (checkoutData) {
+          setCheckoutData(null);
+        } else if (selectedProductId) {
+          setSelectedProductId(null);
+        } else {
+          setActiveTab('catalog');
+        }
+      };
+      tg.BackButton.onClick(handleBack);
+      return () => {
+        tg.BackButton.offClick(handleBack);
+        tg.BackButton.hide();
+      };
+    } else {
+      tg.BackButton.hide();
+    }
+  }, [selectedProductId, checkoutData, activeTab]);
+
+  // Telegram Haptic on tab switch
+  const haptic = (type = 'light') => {
+    try {
+      window.Telegram?.WebApp?.HapticFeedback?.impactOccurred(type);
+    } catch (e) {}
+  };
 
   useEffect(() => {
     fetchGear();
@@ -780,9 +815,18 @@ export default function App() {
             <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>ac_unit</span>
             <span className="text-lg font-bold tracking-widest uppercase text-primary font-headline">Alpinist</span>
           </div>
-          <button className="w-10 h-10 rounded-full flex items-center justify-center bg-surface-container-low transition-all duration-300 transform active:scale-90 hover:bg-primary-container/20">
-            <span className="material-symbols-outlined text-primary">shopping_bag</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={toggleTheme}
+              className="w-10 h-10 rounded-full flex items-center justify-center bg-surface-container-low transition-all duration-300 transform active:scale-90 hover:bg-primary-container/20"
+              title="Сменить тему"
+            >
+              <span className="material-symbols-outlined text-primary">{theme === 'dark' ? 'light_mode' : 'dark_mode'}</span>
+            </button>
+            <button className="w-10 h-10 rounded-full flex items-center justify-center bg-surface-container-low transition-all duration-300 transform active:scale-90 hover:bg-primary-container/20">
+              <span className="material-symbols-outlined text-primary">shopping_bag</span>
+            </button>
+          </div>
         </div>
       </header>
 
@@ -895,17 +939,17 @@ export default function App() {
       {/* Bottom Navigation Bar */}
       <nav className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[92%] rounded-3xl z-50 bg-black/70 backdrop-blur-2xl shadow-[0_10px_30px_rgba(0,0,0,0.08)] border border-surface-variant/20">
         <div className="flex justify-around items-center h-20 px-4">
-          <div onClick={() => setActiveTab('catalog')} className={`flex flex-col items-center justify-center cursor-pointer transition-all duration-300 transform active:scale-90 ${activeTab === 'catalog' ? "text-primary relative after:content-[''] after:absolute after:-bottom-1 after:w-1 after:h-1 after:bg-primary after:rounded-full after:shadow-[0_0_8px_#60A5FA]" : "text-on-surface-variant/60 hover:opacity-80"}`}>
+          <div onClick={() => { haptic('light'); setActiveTab('catalog'); }} className={`flex flex-col items-center justify-center cursor-pointer transition-all duration-300 transform active:scale-90 ${activeTab === 'catalog' ? "text-primary relative after:content-[''] after:absolute after:-bottom-1 after:w-1 after:h-1 after:bg-primary after:rounded-full after:shadow-[0_0_8px_#60A5FA]" : "text-on-surface-variant/60 hover:opacity-80"}`}>
             <span className="material-symbols-outlined mb-1" style={activeTab === 'catalog' ? { fontVariationSettings: "'FILL' 1" } : {}}>grid_view</span>
             <span className="font-label text-[11px] font-semibold tracking-wide uppercase">Catalog</span>
           </div>
           
-          <div onClick={() => setActiveTab('bookings')} className={`flex flex-col items-center justify-center cursor-pointer transition-all duration-300 transform active:scale-90 ${activeTab === 'bookings' ? "text-primary relative after:content-[''] after:absolute after:-bottom-1 after:w-1 after:h-1 after:bg-primary after:rounded-full after:shadow-[0_0_8px_#60A5FA]" : "text-on-surface-variant/60 hover:opacity-80"}`}>
+          <div onClick={() => { haptic('light'); setActiveTab('bookings'); }} className={`flex flex-col items-center justify-center cursor-pointer transition-all duration-300 transform active:scale-90 ${activeTab === 'bookings' ? "text-primary relative after:content-[''] after:absolute after:-bottom-1 after:w-1 after:h-1 after:bg-primary after:rounded-full after:shadow-[0_0_8px_#60A5FA]" : "text-on-surface-variant/60 hover:opacity-80"}`}>
             <span className="material-symbols-outlined mb-1" style={activeTab === 'bookings' ? { fontVariationSettings: "'FILL' 1" } : {}}>calendar_today</span>
             <span className="font-label text-[11px] font-semibold tracking-wide uppercase">Bookings</span>
           </div>
           
-          <div onClick={() => setActiveTab('profile')} className={`flex flex-col items-center justify-center cursor-pointer transition-all duration-300 transform active:scale-90 ${activeTab === 'profile' ? "text-primary relative after:content-[''] after:absolute after:-bottom-1 after:w-1 after:h-1 after:bg-primary after:rounded-full after:shadow-[0_0_8px_#60A5FA]" : "text-on-surface-variant/60 hover:opacity-80"}`}>
+          <div onClick={() => { haptic('light'); setActiveTab('profile'); }} className={`flex flex-col items-center justify-center cursor-pointer transition-all duration-300 transform active:scale-90 ${activeTab === 'profile' ? "text-primary relative after:content-[''] after:absolute after:-bottom-1 after:w-1 after:h-1 after:bg-primary after:rounded-full after:shadow-[0_0_8px_#60A5FA]" : "text-on-surface-variant/60 hover:opacity-80"}`}>
             <span className="material-symbols-outlined mb-1" style={activeTab === 'profile' ? { fontVariationSettings: "'FILL' 1" } : {}}>person</span>
             <span className="font-label text-[11px] font-semibold tracking-wide uppercase">Profile</span>
           </div>
