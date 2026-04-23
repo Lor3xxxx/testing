@@ -842,9 +842,6 @@ export default function App() {
       <main className="pt-20 px-4 max-w-lg mx-auto pb-6">
         {activeTab === 'catalog' ? (
           <>
-            {/* Weather Widget */}
-            <WeatherWidget />
-
             {/* Hero Search Section */}
             <section className="mt-6 animate-fade-in">
               <h1 className="text-3xl font-extrabold font-headline tracking-tight text-on-surface mb-6 leading-tight">

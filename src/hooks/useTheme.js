@@ -2,40 +2,32 @@ import { useState, useEffect, useCallback } from 'react';
 
 const THEME_KEY = 'alpinist-theme';
 
-function getInitialTheme() {
-  if (typeof window === 'undefined') return 'dark';
-  
-  const stored = localStorage.getItem(THEME_KEY);
-  if (stored === 'light' || stored === 'dark') return stored;
-  
-  const tgScheme = window.Telegram?.WebApp?.colorScheme;
-  if (tgScheme === 'light' || tgScheme === 'dark') return tgScheme;
-  
-  return 'dark';
-}
-
 export function useTheme() {
-  const [theme, setTheme] = useState(getInitialTheme);
+  const [theme, setTheme] = useState(() => {
+    if (typeof window === 'undefined') return 'dark';
+    try {
+      const stored = localStorage.getItem(THEME_KEY);
+      if (stored === 'light' || stored === 'dark') return stored;
+    } catch (e) {}
+    return 'dark';
+  });
 
   useEffect(() => {
-    const root = document.documentElement;
-    if (theme === 'dark') {
-      root.classList.add('dark');
-      root.classList.remove('light');
-    } else {
-      root.classList.add('light');
-      root.classList.remove('dark');
-    }
-    localStorage.setItem(THEME_KEY, theme);
+    try {
+      const root = document.documentElement;
+      root.classList.remove('dark', 'light');
+      root.classList.add(theme);
+      localStorage.setItem(THEME_KEY, theme);
 
-    if (window.Telegram?.WebApp) {
-      const bg = theme === 'dark' ? '#0E1117' : '#f7f9fc';
-      try {
-        window.Telegram.WebApp.setHeaderColor(bg);
-        window.Telegram.WebApp.setBackgroundColor(bg);
-      } catch (e) {
-        // ignore
+      if (window.Telegram?.WebApp) {
+        const bg = theme === 'dark' ? '#0E1117' : '#f7f9fc';
+        try {
+          window.Telegram.WebApp.setHeaderColor(bg);
+          window.Telegram.WebApp.setBackgroundColor(bg);
+        } catch (e) {}
       }
+    } catch (e) {
+      console.error('Theme error', e);
     }
   }, [theme]);
 
