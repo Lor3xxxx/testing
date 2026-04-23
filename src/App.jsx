@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { API_BASE } from './api';
 import { useTheme } from './hooks/useTheme';
+import WeatherWidget from './components/WeatherWidget';
 
 const CATEGORIES = ['Все', 'Палатки', 'Рюкзаки', 'Спальники', 'Обувь', 'Палки', 'Фонари'];
 
@@ -121,7 +122,7 @@ function CheckoutPage({ checkoutData, onBack, onConfirm }) {
 
   return (
     <div className="min-h-[100dvh] bg-surface pb-28 animate-slide-up">
-      <header className="fixed top-0 w-full z-50 bg-black/60 backdrop-blur-xl shadow-[0_4px_20px_rgba(59,130,246,0.06)]">
+      <header className="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl shadow-[0_4px_20px_rgba(59,130,246,0.06)]">
         <div className="flex justify-between items-center px-6 h-16 w-full max-w-lg mx-auto">
           <button onClick={onBack} className="w-10 h-10 rounded-full flex items-center justify-center bg-surface-container-low transition-all duration-300 transform active:scale-90 text-on-surface">
             <span className="material-symbols-outlined">arrow_back</span>
@@ -809,7 +810,7 @@ export default function App() {
   return (
     <>
       {/* Top Navigation Bar */}
-      <header className="fixed top-0 w-full z-50 bg-black/60 backdrop-blur-xl shadow-[0_4px_20px_rgba(59,130,246,0.06)]">
+      <header className="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl shadow-[0_4px_20px_rgba(59,130,246,0.06)]">
         <div className="flex justify-between items-center px-6 h-16 w-full max-w-lg mx-auto">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>ac_unit</span>
@@ -833,6 +834,9 @@ export default function App() {
       <main className="pt-20 px-4 max-w-lg mx-auto pb-6">
         {activeTab === 'catalog' ? (
           <>
+            {/* Weather Widget */}
+            <WeatherWidget />
+
             {/* Hero Search Section */}
             <section className="mt-6 animate-fade-in">
               <h1 className="text-3xl font-extrabold font-headline tracking-tight text-on-surface mb-6 leading-tight">
@@ -937,7 +941,7 @@ export default function App() {
       </main>
 
       {/* Bottom Navigation Bar */}
-      <nav className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[92%] rounded-3xl z-50 bg-black/70 backdrop-blur-2xl shadow-[0_10px_30px_rgba(0,0,0,0.08)] border border-surface-variant/20">
+      <nav className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[92%] rounded-3xl z-50 bg-surface/70 backdrop-blur-2xl shadow-[0_10px_30px_rgba(0,0,0,0.08)] border border-surface-variant/20">
         <div className="flex justify-around items-center h-20 px-4">
           <div onClick={() => { haptic('light'); setActiveTab('catalog'); }} className={`flex flex-col items-center justify-center cursor-pointer transition-all duration-300 transform active:scale-90 ${activeTab === 'catalog' ? "text-primary relative after:content-[''] after:absolute after:-bottom-1 after:w-1 after:h-1 after:bg-primary after:rounded-full after:shadow-[0_0_8px_#60A5FA]" : "text-on-surface-variant/60 hover:opacity-80"}`}>
             <span className="material-symbols-outlined mb-1" style={activeTab === 'catalog' ? { fontVariationSettings: "'FILL' 1" } : {}}>grid_view</span>
