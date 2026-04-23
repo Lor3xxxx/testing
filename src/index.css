@@ -2,6 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  html {
+    font-family: 'Outfit', sans-serif;
+  }
+  body {
+    min-height: 100dvh;
+    background-color: #0E1117;
+    color: #FFFFFF;
+  }
+}
+
 @layer utilities {
   .no-scrollbar::-webkit-scrollbar {
     display: none;
@@ -12,14 +23,11 @@
   }
 }
 
-body {
-  min-height: 100dvh;
-}
-
 .glass-card {
-  background: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .material-symbols-outlined {
@@ -27,7 +35,7 @@ body {
 }
 
 .text-gradient {
-  background: linear-gradient(135deg, #00657b 0%, #007f9b 100%);
+  background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE } from './api';
 
 const CATEGORIES = ['Все', 'Палатки', 'Рюкзаки', 'Спальники', 'Обувь', 'Палки', 'Фонари'];
 
@@ -85,7 +86,7 @@ function CheckoutPage({ checkoutData, onBack, onConfirm }) {
         payment_method: paymentMethod
       };
 
-      const response = await fetch('http://localhost:8000/api/orders', {
+      const response = await fetch(`${API_BASE}/api/orders`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -118,7 +119,7 @@ function CheckoutPage({ checkoutData, onBack, onConfirm }) {
 
   return (
     <div className="min-h-[100dvh] bg-surface pb-28 animate-slide-up">
-      <header className="fixed top-0 w-full z-50 bg-slate-50/60 dark:bg-slate-900/60 backdrop-blur-xl shadow-[0_4px_20px_rgba(0,101,123,0.06)]">
+      <header className="fixed top-0 w-full z-50 bg-black/60 backdrop-blur-xl shadow-[0_4px_20px_rgba(59,130,246,0.06)]">
         <div className="flex justify-between items-center px-6 h-16 w-full max-w-lg mx-auto">
           <button onClick={onBack} className="w-10 h-10 rounded-full flex items-center justify-center bg-surface-container-low transition-all duration-300 transform active:scale-90 text-on-surface">
             <span className="material-symbols-outlined">arrow_back</span>
@@ -176,7 +177,7 @@ function CheckoutPage({ checkoutData, onBack, onConfirm }) {
             <button 
               onClick={handleSubmit}
               disabled={!paymentMethod || isSubmitting}
-              className={`w-full py-4 rounded-full font-bold text-[16px] transition-all duration-300 transform active:scale-[0.96] flex justify-center items-center gap-2 ${paymentMethod && !isSubmitting ? "bg-primary text-on-primary shadow-[0_8px_20px_rgba(0,101,123,0.3)] hover:bg-sky-800" : "bg-surface-variant/70 text-on-surface-variant/50 cursor-not-allowed shadow-none"}`}
+              className={`w-full py-4 rounded-full font-bold text-[16px] transition-all duration-300 transform active:scale-[0.96] flex justify-center items-center gap-2 ${paymentMethod && !isSubmitting ? "bg-primary text-on-primary shadow-[0_8px_20px_rgba(59,130,246,0.3)] hover:bg-primary/80" : "bg-surface-variant/70 text-on-surface-variant/50 cursor-not-allowed shadow-none"}`}
             >
               {isSubmitting ? (
                 <><span className="material-symbols-outlined animate-spin text-[20px]" style={{ animation: "spin 1s linear infinite" }}>refresh</span> Обработка...</>
@@ -200,7 +201,7 @@ function ReviewFormModal({ order, onClose, onSubmit }) {
     setIsSubmitting(true);
     try {
       const user_id = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || "test_user_123";
-      await fetch('http://localhost:8000/api/reviews', {
+      await fetch(`${API_BASE}/api/reviews`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -221,18 +222,18 @@ function ReviewFormModal({ order, onClose, onSubmit }) {
 
   return (
     <div className="fixed inset-0 z-[110] flex items-end sm:items-center justify-center p-4">
-       <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity animate-fade-in" onClick={onClose}></div>
-       <div className="bg-white w-full max-w-sm rounded-[2rem] p-6 relative z-10 animate-slide-up shadow-2xl">
+       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity animate-fade-in" onClick={onClose}></div>
+       <div className="bg-surface-container-lowest w-full max-w-sm rounded-[2rem] p-6 relative z-10 animate-slide-up shadow-2xl">
           <div className="flex justify-between items-center mb-6">
-             <h3 className="text-[20px] font-extrabold text-slate-900">Оцените аренду</h3>
-             <button onClick={onClose} className="w-8 h-8 rounded-full bg-slate-100 flex justify-center items-center text-slate-500 hover:bg-slate-200">
+             <h3 className="text-[20px] font-extrabold text-on-surface">Оцените аренду</h3>
+             <button onClick={onClose} className="w-8 h-8 rounded-full bg-surface-container flex justify-center items-center text-on-surface-variant hover:bg-surface-variant">
                 <span className="material-symbols-outlined text-[18px]">close</span>
              </button>
           </div>
           <div className="flex justify-center gap-2 mb-6">
              {[1, 2, 3, 4, 5].map(star => (
                 <button key={star} onClick={() => setRating(star)} className="focus:outline-none transform transition active:scale-90">
-                   <span className={`material-symbols-outlined text-[40px] ${star <= rating ? 'text-[#ffb300]' : 'text-slate-200'}`} style={{ fontVariationSettings: star <= rating ? "'FILL' 1" : "'FILL' 0" }}>star</span>
+                   <span className={`material-symbols-outlined text-[40px] ${star <= rating ? 'text-amber-400' : 'text-surface-variant'}`} style={{ fontVariationSettings: star <= rating ? "'FILL' 1" : "'FILL' 0" }}>star</span>
                 </button>
              ))}
           </div>
@@ -240,9 +241,9 @@ function ReviewFormModal({ order, onClose, onSubmit }) {
              value={text}
              onChange={e => setText(e.target.value)}
              placeholder="Что вам понравилось, а что стоит улучшить?"
-             className="w-full bg-[#f4f7fb] border border-slate-100 rounded-2xl p-4 text-[15px] font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0d6978]/30 resize-none h-32 mb-6"
+             className="w-full bg-surface-container border border-outline-variant rounded-2xl p-4 text-[15px] font-medium text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none h-32 mb-6"
           />
-          <button onClick={handleSubmit} disabled={isSubmitting || text.trim() === ''} className="w-full bg-[#0d6978] text-white py-4 rounded-2xl font-bold hover:bg-[#0a5360] transition disabled:opacity-50 disabled:cursor-not-allowed text-[15px]">
+          <button onClick={handleSubmit} disabled={isSubmitting || text.trim() === ''} className="w-full bg-primary text-white py-4 rounded-2xl font-bold hover:bg-primary/80 transition disabled:opacity-50 disabled:cursor-not-allowed text-[15px]">
              {isSubmitting ? 'Отправка...' : 'Отправить отзыв'}
           </button>
        </div>
@@ -250,7 +251,8 @@ function ReviewFormModal({ order, onClose, onSubmit }) {
   );
 }
 
-function BookingsView({ orders, isLoading, filter, setFilter, gearList, fallbackGear }) {\n  const [reviewOrder, setReviewOrder] = useState(null);
+function BookingsView({ orders, isLoading, filter, setFilter, gearList, fallbackGear }) {
+  const [reviewOrder, setReviewOrder] = useState(null);
   const displayedOrders = orders.filter(o => o.status === filter);
 
   return (
@@ -306,11 +308,11 @@ function BookingsView({ orders, isLoading, filter, setFilter, gearList, fallback
                        {order.status === 'active' ? (
                           <div className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 text-[11px] font-extrabold uppercase tracking-wider">Активен</div>
                        ) : (
-                          <div className="px-3 py-1 rounded-full bg-slate-500/10 text-slate-500 border border-slate-500/20 text-[11px] font-extrabold uppercase tracking-wider">Завершен</div>
+                          <div className="px-3 py-1 rounded-full bg-on-surface-variant/10 text-on-surface-variant border border-on-surface-variant/20 text-[11px] font-extrabold uppercase tracking-wider">Завершен</div>
                        )}
                     </div>
                     {order.status === 'completed' && (
-                        <button onClick={() => setReviewOrder(order)} className="w-full py-2.5 mt-1 bg-[#f4f7fb] hover:bg-[#e4ebf5] text-[#5578a1] font-bold rounded-xl text-[13px] border border-[#e4ebf5] transition-colors">
+                        <button onClick={() => setReviewOrder(order)} className="w-full py-2.5 mt-1 bg-surface-container hover:bg-surface-container-high text-secondary font-bold rounded-xl text-[13px] border border-outline-variant transition-colors">
                             Оставить отзыв
                         </button>
                     )}
@@ -333,7 +335,11 @@ function formatDatePill(dateStr) {
 function ProductPage({ product, onBack, onBook }) {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const [activeModal, setActiveModal] = useState(null);\n  const [reviews, setReviews] = useState([]);\n  useEffect(() => {\n    fetch(`http://localhost:8000/api/reviews?item_id=${product.id}`).then(r => r.json()).then(d => setReviews(d)).catch(e => console.error(e));\n  }, [product.id]);
+  const [activeModal, setActiveModal] = useState(null);
+  const [reviews, setReviews] = useState([]);
+  useEffect(() => {
+    fetch(`${API_BASE}/api/reviews?item_id=${product.id}`).then(r => r.json()).then(d => setReviews(d)).catch(e => console.error(e));
+  }, [product.id]);
   
   const description = product.description || {
     1: "Легкие и прочные карбоновые палки для самых сложных маршрутов. Система быстрой регулировки FlickLock и эргономичные рукоятки из натуральной пробки обеспечат комфорт на любом рельефе Тянь-Шаня.",
@@ -357,9 +363,9 @@ function ProductPage({ product, onBack, onBook }) {
   const todayStr = new Date().toISOString().split('T')[0];
 
   return (
-    <div className="min-h-[100dvh] bg-[#fdfdfd] animate-slide-up pb-32">
+    <div className="min-h-[100dvh] bg-surface animate-slide-up pb-32">
       {/* Header Image and Close button */}
-      <div className="relative h-64 bg-slate-200">
+      <div className="relative h-64 bg-surface-variant">
         <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
         <button onClick={onBack} className="absolute top-5 right-5 w-8 h-8 rounded-lg bg-black/40 hover:bg-black/60 transition-all duration-300 transform active:scale-90 flex items-center justify-center text-white backdrop-blur-sm z-50">
            <span className="material-symbols-outlined text-[20px]">close</span>
@@ -367,59 +373,59 @@ function ProductPage({ product, onBack, onBook }) {
       </div>
 
       {/* Main Content Modal overlapping image slightly */}
-      <div className="bg-white rounded-t-[2.5rem] px-7 pt-8 relative -mt-8 shadow-[0_-10px_20px_rgba(0,0,0,0.05)] z-20">
+      <div className="bg-surface-container-lowest rounded-t-[2.5rem] px-7 pt-8 relative -mt-8 shadow-[0_-10px_20px_rgba(0,0,0,0.05)] z-20">
         
         {/* Pill and Price */}
         <div className="flex justify-between items-start mb-6">
            <div className="flex flex-col gap-2 mt-1">
-              <div className="bg-[#e4ebf5] text-[#5578a1] font-bold uppercase tracking-widest text-[9px] px-3 py-1.5 rounded-full self-start">
+              <div className="bg-primary-container text-secondary font-bold uppercase tracking-widest text-[9px] px-3 py-1.5 rounded-full self-start">
                  {product.category} SERIES
               </div>
-              <div className="bg-emerald-50 text-emerald-600 border border-emerald-100 font-bold uppercase tracking-widest text-[9px] px-3 py-1.5 rounded-full self-start flex items-center gap-1.5">
+              <div className="bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 font-bold uppercase tracking-widest text-[9px] px-3 py-1.5 rounded-full self-start flex items-center gap-1.5">
                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                  В наличии: {product.stock !== undefined ? product.stock : 5} шт.
               </div>
            </div>
            
            <div className="flex flex-col items-end">
-              <span className="text-[34px] font-extrabold text-[#0d6978] leading-none mb-1">{product.price_per_day}</span>
-              <span className="text-[12px] font-extrabold text-[#0d6978] uppercase tracking-widest leading-none mb-1">СОМ</span>
-              <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">за сутки</span>
+              <span className="text-[34px] font-extrabold text-primary leading-none mb-1">{product.price_per_day}</span>
+              <span className="text-[12px] font-extrabold text-primary uppercase tracking-widest leading-none mb-1">СОМ</span>
+              <span className="text-[9px] font-bold text-on-surface-variant uppercase tracking-widest">за сутки</span>
            </div>
         </div>
 
         {/* Title */}
-        <h1 className="text-[32px] font-bold text-slate-900 leading-[1.1] mb-6 tracking-tight pr-6">
+        <h1 className="text-[32px] font-bold text-on-surface leading-[1.1] mb-6 tracking-tight pr-6">
           {product.name}
         </h1>
 
         {/* Description */}
-        <p className="text-slate-600 text-[15px] leading-[1.6] mb-8 font-medium">
+        <p className="text-on-surface-variant text-[15px] leading-[1.6] mb-8 font-medium">
           {description}
         </p>
 
         {/* Weight & Length secondary buttons */}
         <div className="flex gap-3 mb-8">
-          <button onClick={() => setActiveModal('weight')} className="flex-1 bg-white border border-slate-200 rounded-2xl py-3 px-3 flex items-center justify-center gap-2 hover:bg-slate-50 transition-all duration-300 transform active:scale-95 shadow-sm">
-             <span className="material-symbols-outlined text-[#0d6978] text-[20px]">scale</span>
-             <span className="font-bold text-[13px] text-slate-700">Вес</span>
+          <button onClick={() => setActiveModal('weight')} className="flex-1 bg-surface-container-lowest border border-outline-variant rounded-2xl py-3 px-3 flex items-center justify-center gap-2 hover:bg-surface-container-low transition-all duration-300 transform active:scale-95 shadow-sm">
+             <span className="material-symbols-outlined text-primary text-[20px]">scale</span>
+             <span className="font-bold text-[13px] text-on-surface-variant">Вес</span>
           </button>
-          <button onClick={() => setActiveModal('length')} className="flex-1 bg-white border border-slate-200 rounded-2xl py-3 px-3 flex items-center justify-center gap-2 hover:bg-slate-50 transition-all duration-300 transform active:scale-95 shadow-sm">
-             <span className="material-symbols-outlined text-[#0d6978] text-[20px]">straighten</span>
-             <span className="font-bold text-[13px] text-slate-700">Длина</span>
+          <button onClick={() => setActiveModal('length')} className="flex-1 bg-surface-container-lowest border border-outline-variant rounded-2xl py-3 px-3 flex items-center justify-center gap-2 hover:bg-surface-container-low transition-all duration-300 transform active:scale-95 shadow-sm">
+             <span className="material-symbols-outlined text-primary text-[20px]">straighten</span>
+             <span className="font-bold text-[13px] text-on-surface-variant">Длина</span>
           </button>
         </div>
 
         {/* Rental Period Box */}
-        <div className="bg-[#f5f6f8] rounded-[2rem] p-6 mb-8">
-           <div className="flex items-center gap-2.5 mb-5 text-slate-800">
-              <span className="material-symbols-outlined text-[20px] text-slate-700">calendar_month</span>
+        <div className="bg-surface-container rounded-[2rem] p-6 mb-8">
+           <div className="flex items-center gap-2.5 mb-5 text-on-surface">
+              <span className="material-symbols-outlined text-[20px] text-on-surface-variant">calendar_month</span>
               <span className="font-extrabold text-[12px] uppercase tracking-widest">Период аренды</span>
            </div>
            
            <div className="grid grid-cols-2 gap-5">
               <div>
-                 <span className="text-[10px] font-bold text-[#647b97] uppercase tracking-widest mb-1.5 block">Начало</span>
+                 <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1.5 block">Начало</span>
                  <div className="relative">
                     <input 
                       type="date" 
@@ -431,16 +437,16 @@ function ProductPage({ product, onBack, onBook }) {
                       }}
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
                     />
-                    <div className="bg-white rounded-[1.25rem] py-3.5 px-4 flex justify-between items-center shadow-sm relative z-0">
-                       <span className="text-slate-900 font-bold text-[14px]">
+                    <div className="bg-surface-container-lowest rounded-[1.25rem] py-3.5 px-4 flex justify-between items-center shadow-sm relative z-0">
+                       <span className="text-on-surface font-bold text-[14px]">
                           {formatDatePill(startDate)}
                        </span>
-                       <span className="material-symbols-outlined text-[#0d6978] text-[20px]">keyboard_arrow_down</span>
+                       <span className="material-symbols-outlined text-primary text-[20px]">keyboard_arrow_down</span>
                     </div>
                  </div>
               </div>
               <div>
-                 <span className="text-[10px] font-bold text-[#647b97] uppercase tracking-widest mb-1.5 block">Конец</span>
+                 <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1.5 block">Конец</span>
                  <div className="relative">
                     <input 
                       type="date" 
@@ -453,11 +459,11 @@ function ProductPage({ product, onBack, onBook }) {
                       onChange={e => setEndDate(e.target.value)}
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
                     />
-                    <div className="bg-white rounded-[1.25rem] py-3.5 px-4 flex justify-between items-center shadow-sm relative z-0">
-                       <span className="text-slate-900 font-bold text-[14px]">
+                    <div className="bg-surface-container-lowest rounded-[1.25rem] py-3.5 px-4 flex justify-between items-center shadow-sm relative z-0">
+                       <span className="text-on-surface font-bold text-[14px]">
                           {formatDatePill(endDate)}
                        </span>
-                       <span className="material-symbols-outlined text-[#0d6978] text-[20px]">keyboard_arrow_down</span>
+                       <span className="material-symbols-outlined text-primary text-[20px]">keyboard_arrow_down</span>
                     </div>
                  </div>
               </div>
@@ -467,25 +473,25 @@ function ProductPage({ product, onBack, onBook }) {
         {/* Totals Block */}
         <div className="grid grid-cols-2 gap-5 pt-2 pb-6">
            <div className="relative">
-              <div className="text-[10px] font-bold text-[#647b97] uppercase tracking-widest mb-1.5">Дни</div>
-              <div className="text-[22px] font-extrabold text-slate-900 leading-none">{days} <span className="text-[16px] font-bold">суток</span></div>
+              <div className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1.5">Дни</div>
+              <div className="text-[22px] font-extrabold text-on-surface leading-none">{days} <span className="text-[16px] font-bold">суток</span></div>
            </div>
            <div className="relative">
-              <div className="absolute -left-2.5 top-0 bottom-0 w-[1px] bg-slate-200"></div>
-              <div className="text-[10px] font-bold text-[#647b97] uppercase tracking-widest mb-1.5">Итого к оплате</div>
-              <div className="text-[24px] font-extrabold text-[#0d6978] leading-none">{days * product.price_per_day} <span className="text-[15px] font-extrabold uppercase">сом</span></div>
+              <div className="absolute -left-2.5 top-0 bottom-0 w-[1px] bg-surface-variant"></div>
+              <div className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1.5">Итого к оплате</div>
+              <div className="text-[24px] font-extrabold text-primary leading-none">{days * product.price_per_day} <span className="text-[15px] font-extrabold uppercase">сом</span></div>
            </div>
         </div>
 
       </div>
 
       {/* Sticky Book Button */}
-      <div className="fixed bottom-0 left-0 w-full bg-white/90 backdrop-blur-xl pt-3 pb-6 z-40">
+      <div className="fixed bottom-0 left-0 w-full bg-surface-container-lowest/90 backdrop-blur-xl pt-3 pb-6 z-40">
          <div className="max-w-lg mx-auto px-6">
             <button 
               onClick={() => onBook({...product, startDate, endDate, days, total: days * product.price_per_day})}
               disabled={days <= 0}
-              className={`w-full py-4.5 rounded-[1.5rem] font-bold text-[16px] transition-all duration-300 transform active:scale-[0.96] ${days > 0 ? "bg-[#e4ebf5] text-[#0d6978] hover:bg-[#d6e2ef]" : "bg-slate-100 text-slate-400 cursor-not-allowed"}`}
+              className={`w-full py-4.5 rounded-[1.5rem] font-bold text-[16px] transition-all duration-300 transform active:scale-[0.96] ${days > 0 ? "bg-primary-container text-primary hover:bg-primary-container/40" : "bg-surface-container text-on-surface-variant/60 cursor-not-allowed"}`}
               style={{ padding: "18px" }}
             >
               Забронировать
@@ -497,29 +503,29 @@ function ProductPage({ product, onBack, onBook }) {
       {activeModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center px-6" onClick={() => setActiveModal(null)}>
           {/* Darkened Backdrop */}
-          <div className="absolute inset-0 bg-slate-900/60 transition-opacity animate-fade-in"></div>
+          <div className="absolute inset-0 bg-black/60 transition-opacity animate-fade-in"></div>
           
           {/* Solid White Card Modal */}
           <div 
-            className="relative w-full max-w-sm bg-white rounded-[2rem] p-6 transition-all animate-zoom-in shadow-[0_20px_40px_rgba(0,0,0,0.5)]"
+            className="relative w-full max-w-sm bg-surface-container-lowest rounded-[2rem] p-6 transition-all animate-zoom-in shadow-[0_20px_40px_rgba(0,0,0,0.5)]"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-6">
-              <h3 className="font-extrabold text-[19px] text-slate-900 flex items-center gap-2">
+              <h3 className="font-extrabold text-[19px] text-on-surface flex items-center gap-2">
                  {activeModal === 'weight' ? (
-                   <><span className="material-symbols-outlined text-[#0d6978]">scale</span>Вес</>
+                   <><span className="material-symbols-outlined text-primary">scale</span>Вес</>
                  ) : (
-                   <><span className="material-symbols-outlined text-[#0d6978]">straighten</span>Длина</>
+                   <><span className="material-symbols-outlined text-primary">straighten</span>Длина</>
                  )}
               </h3>
-              <button onClick={() => setActiveModal(null)} className="w-9 h-9 flex items-center justify-center bg-slate-100 hover:bg-slate-200 rounded-full transition-all duration-300 transform active:scale-90 active:rotate-90 text-slate-500">
+              <button onClick={() => setActiveModal(null)} className="w-9 h-9 flex items-center justify-center bg-surface-container hover:bg-surface-variant rounded-full transition-all duration-300 transform active:scale-90 active:rotate-90 text-on-surface-variant">
                  <span className="material-symbols-outlined text-[20px]">close</span>
               </button>
             </div>
-            <p className="text-[16px] text-slate-600 mb-8 leading-relaxed font-medium">
+            <p className="text-[16px] text-on-surface-variant mb-8 leading-relaxed font-medium">
                {activeModal === 'weight' ? (product.weight || "Параметр устанавливается...") : (product.length || "Параметр устанавливается...")}
             </p>
-            <button onClick={() => setActiveModal(null)} className="w-full bg-[#0d6978] text-white font-bold py-3.5 rounded-full hover:bg-[#0a5360] transition-all duration-300 transform active:scale-95 shadow-md">
+            <button onClick={() => setActiveModal(null)} className="w-full bg-primary text-white font-bold py-3.5 rounded-full hover:bg-primary/80 transition-all duration-300 transform active:scale-95 shadow-md">
                Понятно
             </button>
           </div>
@@ -534,48 +540,48 @@ function ProfileView({ orders, setTab }) {
   
   return (
     <div className="pt-2 px-1 animate-slide-up pb-28">
-      <h1 className="text-3xl font-extrabold font-headline tracking-tight text-slate-900 mb-6 leading-tight">Профиль</h1>
-      <div className="bg-white rounded-[2rem] p-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)] mb-6 flex items-center gap-5 border border-slate-100">
-         <div className="w-16 h-16 rounded-full overflow-hidden bg-[#e4ebf5] flex-shrink-0 flex items-center justify-center">
+      <h1 className="text-3xl font-extrabold font-headline tracking-tight text-on-surface mb-6 leading-tight">Профиль</h1>
+      <div className="bg-surface-container-lowest rounded-[2rem] p-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)] mb-6 flex items-center gap-5 border border-outline-variant">
+         <div className="w-16 h-16 rounded-full overflow-hidden bg-primary-container flex-shrink-0 flex items-center justify-center">
              {tgUser.photo_url ? (
                  <img src={tgUser.photo_url} alt="Аватар" className="w-full h-full object-cover" />
              ) : (
-                 <span className="material-symbols-outlined text-3xl text-[#5578a1]">person</span>
+                 <span className="material-symbols-outlined text-3xl text-secondary">person</span>
              )}
          </div>
          <div className="min-w-0">
-            <h2 className="text-[20px] font-extrabold text-slate-900 truncate">{tgUser.first_name} {tgUser.last_name || ''}</h2>
-            <p className="text-[13px] font-bold text-[#647b97] mt-0.5">{orders.length} {orders.length === 1 ? 'заказ' : (orders.length > 1 && orders.length < 5) ? 'заказа' : 'заказов'}</p>
+            <h2 className="text-[20px] font-extrabold text-on-surface truncate">{tgUser.first_name} {tgUser.last_name || ''}</h2>
+            <p className="text-[13px] font-bold text-on-surface-variant mt-0.5">{orders.length} {orders.length === 1 ? 'заказ' : (orders.length > 1 && orders.length < 5) ? 'заказа' : 'заказов'}</p>
          </div>
       </div>
       
-      <div className="bg-white rounded-[2rem] overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col border border-slate-100 mb-8">
-         <button onClick={() => setTab('bookings')} className="w-full flex items-center justify-between p-5 border-b border-slate-100 hover:bg-slate-50 transition-colors transform active:bg-slate-100">
+      <div className="bg-surface-container-lowest rounded-[2rem] overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col border border-outline-variant mb-8">
+         <button onClick={() => setTab('bookings')} className="w-full flex items-center justify-between p-5 border-b border-outline-variant hover:bg-surface-container-low transition-colors transform active:bg-surface-container">
             <div className="flex items-center gap-4">
-               <div className="w-10 h-10 rounded-full bg-[#f4f7fb] flex items-center justify-center text-[#0d6978]">
+               <div className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary">
                    <span className="material-symbols-outlined text-[20px]">inventory_2</span>
                </div>
-               <span className="font-extrabold text-slate-800 text-[15px]">Мои брони</span>
+               <span className="font-extrabold text-on-surface text-[15px]">Мои брони</span>
             </div>
-            <span className="material-symbols-outlined text-[#647b97]">chevron_right</span>
+            <span className="material-symbols-outlined text-on-surface-variant">chevron_right</span>
          </button>
-         <button onClick={() => setTab('my_reviews')} className="w-full flex items-center justify-between p-5 border-b border-slate-100 hover:bg-slate-50 transition-colors transform active:bg-slate-100">
+         <button onClick={() => setTab('my_reviews')} className="w-full flex items-center justify-between p-5 border-b border-outline-variant hover:bg-surface-container-low transition-colors transform active:bg-surface-container">
             <div className="flex items-center gap-4">
-               <div className="w-10 h-10 rounded-full bg-[#f4f7fb] flex items-center justify-center text-[#0d6978]">
+               <div className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary">
                    <span className="material-symbols-outlined text-[20px]">star</span>
                </div>
-               <span className="font-extrabold text-slate-800 text-[15px]">Отзывы</span>
+               <span className="font-extrabold text-on-surface text-[15px]">Отзывы</span>
             </div>
-            <span className="material-symbols-outlined text-[#647b97]">chevron_right</span>
+            <span className="material-symbols-outlined text-on-surface-variant">chevron_right</span>
          </button>
-         <button className="w-full flex items-center justify-between p-5 hover:bg-slate-50 transition-colors transform active:bg-slate-100">
+         <button className="w-full flex items-center justify-between p-5 hover:bg-surface-container-low transition-colors transform active:bg-surface-container">
             <div className="flex items-center gap-4">
-               <div className="w-10 h-10 rounded-full bg-[#f4f7fb] flex items-center justify-center text-[#0d6978]">
+               <div className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary">
                    <span className="material-symbols-outlined text-[20px]">gavel</span>
                </div>
-               <span className="font-extrabold text-slate-800 text-[15px]">Правила аренды</span>
+               <span className="font-extrabold text-on-surface text-[15px]">Правила аренды</span>
             </div>
-            <span className="material-symbols-outlined text-[#647b97]">chevron_right</span>
+            <span className="material-symbols-outlined text-on-surface-variant">chevron_right</span>
          </button>
       </div>
     </div>
@@ -591,7 +597,7 @@ function MyReviewsView({ setTab, gear }) {
     const fetchMyReviews = async () => {
       try {
         const user_id = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || "test_user_123";
-        const res = await fetch(`http://localhost:8000/api/reviews?user_id=${user_id}`);
+        const res = await fetch(`${API_BASE}/api/reviews?user_id=${user_id}`);
         if (res.ok) {
           const data = await res.json();
           setReviews(data);
@@ -608,17 +614,17 @@ function MyReviewsView({ setTab, gear }) {
   return (
     <div className="pt-2 px-1 animate-slide-up pb-28">
       <div className="flex items-center gap-3 mb-6 w-full">
-          <button onClick={() => setTab('profile')} className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-slate-700 hover:bg-slate-50 transition transform active:scale-90">
+          <button onClick={() => setTab('profile')} className="w-10 h-10 rounded-full bg-surface-container-lowest shadow-sm flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low transition transform active:scale-90">
              <span className="material-symbols-outlined text-[20px]">arrow_back</span>
           </button>
-          <h1 className="text-3xl font-extrabold font-headline tracking-tight text-slate-900">Мои отзывы</h1>
+          <h1 className="text-3xl font-extrabold font-headline tracking-tight text-on-surface">Мои отзывы</h1>
       </div>
 
       {isLoading ? (
-         <div className="text-center text-slate-400 mt-10 font-bold">Ожидайте, загружаем...</div>
+         <div className="text-center text-on-surface-variant/60 mt-10 font-bold">Ожидайте, загружаем...</div>
       ) : reviews.length === 0 ? (
-         <div className="bg-white rounded-[2rem] p-8 text-center text-slate-500 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-slate-100 flex flex-col items-center justify-center">
-            <span className="material-symbols-outlined text-5xl opacity-30 mb-3 text-slate-400">star_rate</span>
+         <div className="bg-surface-container-lowest rounded-[2rem] p-8 text-center text-on-surface-variant shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-outline-variant flex flex-col items-center justify-center">
+            <span className="material-symbols-outlined text-5xl opacity-30 mb-3 text-on-surface-variant/60">star_rate</span>
             <p className="font-bold text-[15px]">Вы еще не писали отзывы.</p>
          </div>
       ) : (
@@ -626,21 +632,21 @@ function MyReviewsView({ setTab, gear }) {
             {reviews.map(r => {
                const product = gear.find(g => g.id === r.item_id) || { name: 'Неизвестный товар', image_url: '' };
                return (
-                 <div key={r.id} className="bg-white rounded-[2rem] p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-slate-100 relative">
-                    <div className="flex items-center gap-4 mb-4 pb-4 border-b border-slate-50">
-                       <img src={product.image_url} alt={product.name} className="w-12 h-12 rounded-[14px] object-cover bg-slate-100" />
+                 <div key={r.id} className="bg-surface-container-lowest rounded-[2rem] p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-outline-variant relative">
+                    <div className="flex items-center gap-4 mb-4 pb-4 border-b border-outline-variant/50">
+                       <img src={product.image_url} alt={product.name} className="w-12 h-12 rounded-[14px] object-cover bg-surface-container" />
                        <div>
-                          <h4 className="font-extrabold text-[14px] text-slate-900 leading-tight mb-1">{product.name}</h4>
-                          <div className="text-[10px] text-[#647b97] font-bold uppercase tracking-widest">{new Date(r.created_at).toLocaleDateString('ru-RU')}</div>
+                          <h4 className="font-extrabold text-[14px] text-on-surface leading-tight mb-1">{product.name}</h4>
+                          <div className="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">{new Date(r.created_at).toLocaleDateString('ru-RU')}</div>
                        </div>
                     </div>
                     <div>
                        <div className="flex items-center gap-1 mb-2">
                           {[1,2,3,4,5].map(star => (
-                             <span key={star} className={`material-symbols-outlined text-[15px] ${star <= r.rating ? 'text-[#ffb300]' : 'text-slate-200'}`} style={{ fontVariationSettings: star <= r.rating ? "'FILL' 1" : "'FILL' 0" }}>star</span>
+                             <span key={star} className={`material-symbols-outlined text-[15px] ${star <= r.rating ? 'text-amber-400' : 'text-surface-variant'}`} style={{ fontVariationSettings: star <= r.rating ? "'FILL' 1" : "'FILL' 0" }}>star</span>
                           ))}
                        </div>
-                       <p className="text-[14px] text-slate-700 leading-relaxed font-medium">{r.text}</p>
+                       <p className="text-[14px] text-on-surface-variant leading-relaxed font-medium">{r.text}</p>
                     </div>
                  </div>
                );
@@ -667,8 +673,8 @@ export default function App() {
     if (window.Telegram && window.Telegram.WebApp) {
       window.Telegram.WebApp.expand();
       try {
-        window.Telegram.WebApp.setHeaderColor('#f7f9fc');
-        window.Telegram.WebApp.setBackgroundColor('#f7f9fc');
+        window.Telegram.WebApp.setHeaderColor('#0E1117');
+        window.Telegram.WebApp.setBackgroundColor('#0E1117');
       } catch (e) {
         console.log("Could not set header color", e);
       }
@@ -689,7 +695,7 @@ export default function App() {
     setIsOrdersLoading(true);
     try {
       const user_id = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || "test_user_123";
-      const response = await fetch(`http://localhost:8000/api/orders?user_id=${user_id}`);
+      const response = await fetch(`${API_BASE}/api/orders?user_id=${user_id}`);
       if (response.ok) {
         let data = await response.json();
         data.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
@@ -705,7 +711,7 @@ export default function App() {
   const fetchGear = async () => {
     setIsLoading(true);
     try {
-      const url = new URL('http://localhost:8000/api/gear');
+      const url = new URL(`${API_BASE}/api/gear`);
       if (selectedCategory && selectedCategory !== 'Все') {
         url.searchParams.append('category', selectedCategory);
       }
@@ -768,14 +774,14 @@ export default function App() {
   return (
     <>
       {/* Top Navigation Bar */}
-      <header className="fixed top-0 w-full z-50 bg-slate-50/60 dark:bg-slate-900/60 backdrop-blur-xl shadow-[0_4px_20px_rgba(0,101,123,0.06)]">
+      <header className="fixed top-0 w-full z-50 bg-black/60 backdrop-blur-xl shadow-[0_4px_20px_rgba(59,130,246,0.06)]">
         <div className="flex justify-between items-center px-6 h-16 w-full max-w-lg mx-auto">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-sky-700" style={{ fontVariationSettings: "'FILL' 1" }}>ac_unit</span>
-            <span className="text-lg font-bold tracking-widest uppercase text-sky-900 font-headline">Alpinist</span>
+            <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>ac_unit</span>
+            <span className="text-lg font-bold tracking-widest uppercase text-primary font-headline">Alpinist</span>
           </div>
-          <button className="w-10 h-10 rounded-full flex items-center justify-center bg-surface-container-low transition-all duration-300 transform active:scale-90 hover:bg-sky-50/50">
-            <span className="material-symbols-outlined text-sky-700">shopping_bag</span>
+          <button className="w-10 h-10 rounded-full flex items-center justify-center bg-surface-container-low transition-all duration-300 transform active:scale-90 hover:bg-primary-container/20">
+            <span className="material-symbols-outlined text-primary">shopping_bag</span>
           </button>
         </div>
       </header>
@@ -794,7 +800,7 @@ export default function App() {
                   <span className="material-symbols-outlined text-outline">search</span>
                 </div>
                 <input
-                  className="w-full bg-surface-container-lowest border-none rounded-2xl py-4 pl-12 pr-4 shadow-sm focus:ring-2 focus:ring-inverse-primary/20 transition-all duration-300 font-medium placeholder:text-slate-400"
+                  className="w-full bg-surface-container-lowest border-none rounded-2xl py-4 pl-12 pr-4 shadow-sm focus:ring-2 focus:ring-inverse-primary/20 transition-all duration-300 font-medium placeholder:text-on-surface-variant/60"
                   placeholder="Поиск снаряжения..."
                   type="text"
                   value={searchQuery}
@@ -812,7 +818,7 @@ export default function App() {
                     onClick={() => setSelectedCategory(cat)}
                     className={`flex-none px-6 py-3 rounded-full font-semibold text-sm transition-all duration-300 transform active:scale-[0.94] ${
                       selectedCategory === cat
-                        ? 'bg-primary text-on-primary shadow-[0_8px_16px_rgba(0,101,123,0.3)]'
+                        ? 'bg-primary text-on-primary shadow-[0_8px_16px_rgba(59,130,246,0.3)]'
                         : 'bg-surface-container-lowest text-on-surface-variant border border-outline-variant/10 hover:bg-surface-container-high shadow-sm'
                     }`}
                   >
@@ -850,9 +856,9 @@ export default function App() {
                         alt={item.name}
                         src={item.image_url}
                       />
-                      <div className="absolute top-3 right-3 bg-white/50 backdrop-blur-md px-2 py-1 rounded-full flex items-center gap-1 border border-white/30">
+                      <div className="absolute top-3 right-3 bg-surface-container-lowest/50 backdrop-blur-md px-2 py-1 rounded-full flex items-center gap-1 border border-snow/30">
                         <span className="material-symbols-outlined text-[14px] text-amber-500" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                        <span className="text-[12px] font-extrabold text-sky-950">{item.rating.toFixed(1)}</span>
+                        <span className="text-[12px] font-extrabold text-primary">{item.rating.toFixed(1)}</span>
                       </div>
                     </div>
                     <div className="p-4 flex flex-col flex-grow">
@@ -887,21 +893,21 @@ export default function App() {
       </main>
 
       {/* Bottom Navigation Bar */}
-      <nav className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[92%] rounded-3xl z-50 bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-2xl shadow-[0_10px_30px_rgba(0,0,0,0.08)] border border-surface-variant/20">
+      <nav className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[92%] rounded-3xl z-50 bg-black/70 backdrop-blur-2xl shadow-[0_10px_30px_rgba(0,0,0,0.08)] border border-surface-variant/20">
         <div className="flex justify-around items-center h-20 px-4">
-          <div onClick={() => setActiveTab('catalog')} className={`flex flex-col items-center justify-center cursor-pointer transition-all duration-300 transform active:scale-90 ${activeTab === 'catalog' ? "text-sky-700 dark:text-sky-300 relative after:content-[''] after:absolute after:-bottom-1 after:w-1 after:h-1 after:bg-sky-400 after:rounded-full after:shadow-[0_0_8px_#47d6ff]" : "text-slate-400 dark:text-slate-500 hover:opacity-80"}`}>
+          <div onClick={() => setActiveTab('catalog')} className={`flex flex-col items-center justify-center cursor-pointer transition-all duration-300 transform active:scale-90 ${activeTab === 'catalog' ? "text-primary relative after:content-[''] after:absolute after:-bottom-1 after:w-1 after:h-1 after:bg-primary after:rounded-full after:shadow-[0_0_8px_#60A5FA]" : "text-on-surface-variant/60 hover:opacity-80"}`}>
             <span className="material-symbols-outlined mb-1" style={activeTab === 'catalog' ? { fontVariationSettings: "'FILL' 1" } : {}}>grid_view</span>
-            <span className="font-manrope text-[11px] font-semibold tracking-wide uppercase">Catalog</span>
+            <span className="font-label text-[11px] font-semibold tracking-wide uppercase">Catalog</span>
           </div>
           
-          <div onClick={() => setActiveTab('bookings')} className={`flex flex-col items-center justify-center cursor-pointer transition-all duration-300 transform active:scale-90 ${activeTab === 'bookings' ? "text-sky-700 dark:text-sky-300 relative after:content-[''] after:absolute after:-bottom-1 after:w-1 after:h-1 after:bg-sky-400 after:rounded-full after:shadow-[0_0_8px_#47d6ff]" : "text-slate-400 dark:text-slate-500 hover:opacity-80"}`}>
+          <div onClick={() => setActiveTab('bookings')} className={`flex flex-col items-center justify-center cursor-pointer transition-all duration-300 transform active:scale-90 ${activeTab === 'bookings' ? "text-primary relative after:content-[''] after:absolute after:-bottom-1 after:w-1 after:h-1 after:bg-primary after:rounded-full after:shadow-[0_0_8px_#60A5FA]" : "text-on-surface-variant/60 hover:opacity-80"}`}>
             <span className="material-symbols-outlined mb-1" style={activeTab === 'bookings' ? { fontVariationSettings: "'FILL' 1" } : {}}>calendar_today</span>
-            <span className="font-manrope text-[11px] font-semibold tracking-wide uppercase">Bookings</span>
+            <span className="font-label text-[11px] font-semibold tracking-wide uppercase">Bookings</span>
           </div>
           
-          <div onClick={() => setActiveTab('profile')} className={`flex flex-col items-center justify-center cursor-pointer transition-all duration-300 transform active:scale-90 ${activeTab === 'profile' ? "text-sky-700 dark:text-sky-300 relative after:content-[''] after:absolute after:-bottom-1 after:w-1 after:h-1 after:bg-sky-400 after:rounded-full after:shadow-[0_0_8px_#47d6ff]" : "text-slate-400 dark:text-slate-500 hover:opacity-80"}`}>
+          <div onClick={() => setActiveTab('profile')} className={`flex flex-col items-center justify-center cursor-pointer transition-all duration-300 transform active:scale-90 ${activeTab === 'profile' ? "text-primary relative after:content-[''] after:absolute after:-bottom-1 after:w-1 after:h-1 after:bg-primary after:rounded-full after:shadow-[0_0_8px_#60A5FA]" : "text-on-surface-variant/60 hover:opacity-80"}`}>
             <span className="material-symbols-outlined mb-1" style={activeTab === 'profile' ? { fontVariationSettings: "'FILL' 1" } : {}}>person</span>
-            <span className="font-manrope text-[11px] font-semibold tracking-wide uppercase">Profile</span>
+            <span className="font-label text-[11px] font-semibold tracking-wide uppercase">Profile</span>
           </div>
         </div>
       </nav>
