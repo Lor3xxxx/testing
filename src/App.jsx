@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { API_BASE } from './api';
 import { useTheme } from './hooks/useTheme';
 import WeatherWidget from './components/WeatherWidget';
+import WeatherPage from './components/WeatherPage';
 
 const CATEGORIES = ['Все', 'Палатки', 'Рюкзаки', 'Спальники', 'Обувь', 'Палки', 'Фонари'];
 
@@ -937,6 +938,8 @@ export default function App() {
           <ProfileView orders={orders} setTab={setActiveTab} />
         ) : activeTab === 'my_reviews' ? (
           <MyReviewsView setTab={setActiveTab} gear={gear.length > 0 ? gear : FALLBACK_GEAR} />
+        ) : activeTab === 'weather' ? (
+          <WeatherPage />
         ) : null}
       </main>
 
@@ -951,6 +954,11 @@ export default function App() {
           <div onClick={() => { haptic('light'); setActiveTab('bookings'); }} className={`flex flex-col items-center justify-center cursor-pointer transition-all duration-300 transform active:scale-90 ${activeTab === 'bookings' ? "text-primary relative after:content-[''] after:absolute after:-bottom-1 after:w-1 after:h-1 after:bg-primary after:rounded-full after:shadow-[0_0_8px_#60A5FA]" : "text-on-surface-variant/60 hover:opacity-80"}`}>
             <span className="material-symbols-outlined mb-1" style={activeTab === 'bookings' ? { fontVariationSettings: "'FILL' 1" } : {}}>calendar_today</span>
             <span className="font-label text-[11px] font-semibold tracking-wide uppercase">Bookings</span>
+          </div>
+          
+          <div onClick={() => { haptic('light'); setActiveTab('weather'); }} className={`flex flex-col items-center justify-center cursor-pointer transition-all duration-300 transform active:scale-90 ${activeTab === 'weather' ? "text-primary relative after:content-[''] after:absolute after:-bottom-1 after:w-1 after:h-1 after:bg-primary after:rounded-full after:shadow-[0_0_8px_#60A5FA]" : "text-on-surface-variant/60 hover:opacity-80"}`}>
+            <span className="material-symbols-outlined mb-1" style={activeTab === 'weather' ? { fontVariationSettings: "'FILL' 1" } : {}}>partly_cloudy_day</span>
+            <span className="font-label text-[11px] font-semibold tracking-wide uppercase">Weather</span>
           </div>
           
           <div onClick={() => { haptic('light'); setActiveTab('profile'); }} className={`flex flex-col items-center justify-center cursor-pointer transition-all duration-300 transform active:scale-90 ${activeTab === 'profile' ? "text-primary relative after:content-[''] after:absolute after:-bottom-1 after:w-1 after:h-1 after:bg-primary after:rounded-full after:shadow-[0_0_8px_#60A5FA]" : "text-on-surface-variant/60 hover:opacity-80"}`}>
