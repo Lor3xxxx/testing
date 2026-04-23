@@ -24,7 +24,9 @@ export function useTheme() {
         try {
           window.Telegram.WebApp.setHeaderColor(bg);
           window.Telegram.WebApp.setBackgroundColor(bg);
-        } catch (e) {}
+        } catch (e) {
+          // ignore unsupported methods
+        }
       }
     } catch (e) {
       console.error('Theme error', e);

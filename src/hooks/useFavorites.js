@@ -20,27 +20,35 @@ export function useFavorites() {
   useEffect(() => {
     const tg = window.Telegram?.WebApp;
     if (!tg?.CloudStorage) return;
-    tg.CloudStorage.getItem(CLOUD_KEY, (err, val) => {
-      if (!err && val) {
-        try {
-          const parsed = JSON.parse(val);
-          if (Array.isArray(parsed)) {
-            setFavorites(parsed);
-            localStorage.setItem(STORAGE_KEY, val);
-          }
-        } catch (e) {}
-      }
+    try {
+      tg.CloudStorage.getItem(CLOUD_KEY, (err, val) => {
+        if (!err && val) {
+          try {
+            const parsed = JSON.parse(val);
+            if (Array.isArray(parsed)) {
+              setFavorites(parsed);
+              localStorage.setItem(STORAGE_KEY, val);
+            }
+          } catch (e) {}
+        }
+        setCloudReady(true);
+      });
+    } catch (e) {
       setCloudReady(true);
-    });
+    }
   }, []);
 
   // Persist to localStorage and CloudStorage
   useEffect(() => {
-    const json = JSON.stringify(favorites);
-    localStorage.setItem(STORAGE_KEY, json);
-    if (cloudReady && window.Telegram?.WebApp?.CloudStorage) {
-      window.Telegram.WebApp.CloudStorage.setItem(CLOUD_KEY, json);
-    }
+    try {
+      const json = JSON.stringify(favorites);
+      localStorage.setItem(STORAGE_KEY, json);
+      if (cloudReady && window.Telegram?.WebApp?.CloudStorage) {
+        try {
+          window.Telegram.WebApp.CloudStorage.setItem(CLOUD_KEY, json);
+        } catch (e) {}
+      }
+    } catch (e) {}
   }, [favorites, cloudReady]);
 
   const toggle = useCallback((id) => {
