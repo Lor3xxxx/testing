@@ -65,11 +65,18 @@ MOCK_GEAR = [
     }
 ]
 
-class OrderCreate(BaseModel):
-    user_id: str
+class OrderItem(BaseModel):
     item_id: int
     start_date: str
     end_date: str
+    total_price: int
+
+class OrderCreate(BaseModel):
+    user_id: str
+    item_id: int | None = None
+    start_date: str | None = None
+    end_date: str | None = None
+    items: list[OrderItem] | None = None
     total_price: int
     payment_method: str
 
@@ -97,6 +104,14 @@ async def create_order(order: OrderCreate):
     new_order["id"] = str(uuid.uuid4())
     new_order["status"] = "active"
     new_order["created_at"] = datetime.datetime.now().isoformat()
+    # Normalize legacy single-item orders
+    if not new_order.get("items") and new_order.get("item_id") is not None:
+        new_order["items"] = [{
+            "item_id": new_order["item_id"],
+            "start_date": new_order.get("start_date"),
+            "end_date": new_order.get("end_date"),
+            "total_price": new_order.get("total_price")
+        }]
     orders_db.append(new_order)
     return new_order
     
@@ -107,9 +122,14 @@ async def get_orders(user_id: str = None):
     for order in orders_db:
         if order["status"] == "active":
             try:
-                end_date_obj = datetime.datetime.strptime(order["end_date"], "%Y-%m-%d").date()
-                if today > end_date_obj:
-                    order["status"] = "completed"
+                # Support both legacy orders and multi-item orders
+                end_date_str = order.get("end_date")
+                if not end_date_str and order.get("items"):
+                    end_date_str = order["items"][-1].get("end_date")
+                if end_date_str:
+                    end_date_obj = datetime.datetime.strptime(end_date_str, "%Y-%m-%d").date()
+                    if today > end_date_obj:
+                        order["status"] = "completed"
             except Exception:
                 pass
                 

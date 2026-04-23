@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { API_BASE } from './api';
 import { useTheme } from './hooks/useTheme';
 import { useFavorites } from './hooks/useFavorites';
+import { useCart } from './hooks/useCart';
 import WeatherWidget from './components/WeatherWidget';
 import WeatherPage from './components/WeatherPage';
 
@@ -70,9 +71,12 @@ const FALLBACK_GEAR = [
   }
 ];
 
-function CheckoutPage({ checkoutData, onBack, onConfirm }) {
+function CheckoutPage({ checkoutItems, onBack, onConfirm, onClearCart }) {
   const [paymentMethod, setPaymentMethod] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const items = Array.isArray(checkoutItems) ? checkoutItems : [checkoutItems];
+  const total = items.reduce((s, i) => s + (i.total || 0), 0);
 
   const methods = ['MBank', 'O!Bank', 'Наличные при получении'];
 
@@ -84,10 +88,13 @@ function CheckoutPage({ checkoutData, onBack, onConfirm }) {
       
       const payload = {
         user_id: user_id,
-        item_id: checkoutData.id,
-        start_date: checkoutData.startDate,
-        end_date: checkoutData.endDate,
-        total_price: checkoutData.total,
+        items: items.map(it => ({
+          item_id: it.id,
+          start_date: it.startDate,
+          end_date: it.endDate,
+          total_price: it.total
+        })),
+        total_price: total,
         payment_method: paymentMethod
       };
 
@@ -104,15 +111,20 @@ function CheckoutPage({ checkoutData, onBack, onConfirm }) {
       }
       
       const data = await response.json();
+      onClearCart && onClearCart();
       onConfirm(data);
     } catch (error) {
       console.error(error);
+      onClearCart && onClearCart();
       onConfirm({
         user_id: "test_user_123",
-        item_id: checkoutData.id,
-        start_date: checkoutData.startDate,
-        end_date: checkoutData.endDate,
-        total_price: checkoutData.total,
+        items: items.map(it => ({
+          item_id: it.id,
+          start_date: it.startDate,
+          end_date: it.endDate,
+          total_price: it.total
+        })),
+        total_price: total,
         payment_method: paymentMethod,
         status: 'active',
         id: Math.random().toString(36).substring(7)
@@ -138,26 +150,20 @@ function CheckoutPage({ checkoutData, onBack, onConfirm }) {
          <h2 className="font-headline font-extrabold text-2xl text-on-surface mb-6">Ваш заказ</h2>
          
          <div className="bg-surface-container-lowest rounded-[2rem] p-5 shadow-sm border border-outline-variant/10 mb-8 flex flex-col gap-4">
-            <div className="flex gap-4">
-               <img src={checkoutData.image_url} alt={checkoutData.name} className="w-20 h-20 rounded-2xl object-cover shadow-sm" />
-               <div>
-                  <h3 className="font-headline font-bold text-[15px] text-on-surface mb-1 leading-tight">{checkoutData.name}</h3>
-                  <p className="text-on-surface-variant text-[13px]">{checkoutData.days} дней аренда</p>
-               </div>
-            </div>
+            {items.map((item, idx) => (
+              <div key={idx} className={`flex gap-4 ${idx > 0 ? 'pt-3 border-t border-outline-variant/10' : ''}`}>
+                 <img src={item.image_url} alt={item.name} className="w-16 h-16 rounded-xl object-cover shadow-sm flex-shrink-0" />
+                 <div className="flex-1 min-w-0">
+                    <h3 className="font-headline font-bold text-[14px] text-on-surface mb-0.5 leading-tight truncate">{item.name}</h3>
+                    <p className="text-on-surface-variant text-[12px]">{item.days} дней аренды</p>
+                    <p className="text-primary text-[13px] font-extrabold mt-1">{item.total} сом</p>
+                 </div>
+              </div>
+            ))}
             
-            <div className="flex justify-between items-center py-4 border-y border-outline-variant/10">
-               <div className="text-[13px] font-semibold text-on-surface-variant">
-                  {new Date(checkoutData.startDate).toLocaleDateString()} — {new Date(checkoutData.endDate).toLocaleDateString()}
-               </div>
-               <div className="text-[16px] font-extrabold text-primary">
-                  {checkoutData.total} сом
-               </div>
-            </div>
-            
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center py-3 border-t border-outline-variant/10">
                <span className="font-bold text-on-surface">Итого к оплате:</span>
-               <span className="text-2xl font-extrabold text-primary">{checkoutData.total} <span className="text-sm">сом</span></span>
+               <span className="text-xl font-extrabold text-primary">{total} <span className="text-sm">сом</span></span>
             </div>
          </div>
 
@@ -187,7 +193,7 @@ function CheckoutPage({ checkoutData, onBack, onConfirm }) {
               {isSubmitting ? (
                 <><span className="material-symbols-outlined animate-spin text-[20px]" style={{ animation: "spin 1s linear infinite" }}>refresh</span> Обработка...</>
               ) : (
-                "Подтвердить заказ"
+                `Подтвердить заказ · ${total} сом`
               )}
             </button>
          </div>
@@ -196,6 +202,80 @@ function CheckoutPage({ checkoutData, onBack, onConfirm }) {
   );
 }
 
+function CartPage({ items, onBack, onRemove, onCheckout }) {
+  if (items.length === 0) {
+    return (
+      <div className="min-h-[100dvh] bg-surface pb-28 animate-slide-up">
+        <header className="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl shadow-[0_4px_20px_rgba(59,130,246,0.06)]">
+          <div className="flex justify-between items-center px-6 h-16 w-full max-w-lg mx-auto">
+            <button onClick={onBack} className="w-10 h-10 rounded-full flex items-center justify-center bg-surface-container-low transition-all duration-300 transform active:scale-90 text-on-surface">
+              <span className="material-symbols-outlined">arrow_back</span>
+            </button>
+            <span className="font-headline font-extrabold text-on-surface text-lg">Корзина</span>
+            <div className="w-10 h-10"></div>
+          </div>
+        </header>
+        <div className="pt-24 px-5 max-w-lg mx-auto flex flex-col items-center justify-center" style={{ minHeight: '60vh' }}>
+          <span className="material-symbols-outlined text-[64px] text-surface-variant mb-4">shopping_bag</span>
+          <h2 className="font-headline font-bold text-xl text-on-surface mb-2">Корзина пуста</h2>
+          <p className="text-on-surface-variant text-center text-[14px]">Добавьте снаряжение из каталога</p>
+        </div>
+      </div>
+    );
+  }
+
+  const total = items.reduce((s, i) => s + (i.total || 0), 0);
+
+  return (
+    <div className="min-h-[100dvh] bg-surface pb-28 animate-slide-up">
+      <header className="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl shadow-[0_4px_20px_rgba(59,130,246,0.06)]">
+        <div className="flex justify-between items-center px-6 h-16 w-full max-w-lg mx-auto">
+          <button onClick={onBack} className="w-10 h-10 rounded-full flex items-center justify-center bg-surface-container-low transition-all duration-300 transform active:scale-90 text-on-surface">
+            <span className="material-symbols-outlined">arrow_back</span>
+          </button>
+          <span className="font-headline font-extrabold text-on-surface text-lg">Корзина ({items.length})</span>
+          <div className="w-10 h-10"></div>
+        </div>
+      </header>
+
+      <div className="pt-24 px-5 max-w-lg mx-auto">
+        <div className="flex flex-col gap-3 mb-6">
+          {items.map((item, idx) => (
+            <div key={idx} className="bg-surface-container-lowest rounded-[1.5rem] p-4 shadow-sm border border-outline-variant/10 flex gap-3 items-center">
+              <img src={item.image_url} alt={item.name} className="w-16 h-16 rounded-xl object-cover shadow-sm flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <h3 className="font-headline font-bold text-[14px] text-on-surface leading-tight truncate">{item.name}</h3>
+                <p className="text-on-surface-variant text-[12px] mt-0.5">{item.days} дней · {new Date(item.startDate).toLocaleDateString()} — {new Date(item.endDate).toLocaleDateString()}</p>
+                <p className="text-primary text-[13px] font-extrabold mt-1">{item.total} сом</p>
+              </div>
+              <button 
+                onClick={() => onRemove(item.id)}
+                className="w-9 h-9 rounded-full flex items-center justify-center bg-error-container text-error transition-all duration-300 transform active:scale-90 flex-shrink-0"
+              >
+                <span className="material-symbols-outlined text-[18px]">delete</span>
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="fixed bottom-0 left-0 w-full bg-surface/90 backdrop-blur-lg pt-4 pb-6 border-t border-surface-container z-40">
+        <div className="max-w-lg mx-auto px-5">
+          <div className="flex justify-between items-center mb-3 px-1">
+            <span className="font-bold text-on-surface">Итого:</span>
+            <span className="text-xl font-extrabold text-primary">{total} <span className="text-sm">сом</span></span>
+          </div>
+          <button 
+            onClick={onCheckout}
+            className="w-full py-4 rounded-full font-bold text-[16px] transition-all duration-300 transform active:scale-[0.96] bg-primary text-on-primary shadow-[0_8px_20px_rgba(59,130,246,0.3)] hover:bg-primary/80"
+          >
+            Оформить заказ · {total} сом
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function ReviewFormModal({ order, onClose, onSubmit }) {
   const [rating, setRating] = useState(5);
@@ -210,7 +290,7 @@ function ReviewFormModal({ order, onClose, onSubmit }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          item_id: order.item_id,
+          item_id: order.item_id || order.items?.[0]?.item_id,
           user_id: user_id,
           rating: rating,
           text: text
@@ -287,7 +367,9 @@ function BookingsView({ orders, isLoading, filter, setFilter, gearList, fallback
       ) : (
          <div className="flex flex-col gap-4">
             {displayedOrders.map(order => {
-               const product = gearList.find(g => g.id === order.item_id) || fallbackGear.find(g => g.id === order.item_id) || {};
+               const firstItem = order.items?.[0] || order;
+               const product = gearList.find(g => g.id === firstItem.item_id) || fallbackGear.find(g => g.id === firstItem.item_id) || {};
+               const itemCount = order.items?.length || 1;
                return (
                  <div key={order.id} className="bg-surface-container-lowest rounded-[2rem] p-4 shadow-sm border border-outline-variant/10 flex flex-col gap-4 transition-all duration-300 transform active:scale-[0.98]">
                     <div className="flex gap-4">
@@ -295,7 +377,7 @@ function BookingsView({ orders, isLoading, filter, setFilter, gearList, fallback
                          <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
                        </div>
                        <div className="flex flex-col justify-center flex-1 min-w-0">
-                          <h3 className="font-headline font-bold text-[14px] text-on-surface truncate leading-tight mb-1" title={product.name}>{product.name || "Снаряжение"}</h3>
+                          <h3 className="font-headline font-bold text-[14px] text-on-surface truncate leading-tight mb-1" title={product.name}>{product.name || "Снаряжение"}{itemCount > 1 && <span className="text-on-surface-variant text-[12px] font-normal"> +{itemCount - 1}</span>}</h3>
                           <div className="flex items-center justify-between">
                              <p className="text-primary font-extrabold text-[15px]">{order.total_price} <span className="text-[11px]">сом</span></p>
                           </div>
@@ -306,7 +388,7 @@ function BookingsView({ orders, isLoading, filter, setFilter, gearList, fallback
                        <div className="flex items-center gap-2 text-on-surface-variant">
                          <span className="material-symbols-outlined text-[16px]">calendar_today</span>
                          <span className="text-[12px] font-bold tracking-wide">
-                            {new Date(order.start_date).toLocaleDateString('ru-RU', {day: 'numeric', month: 'short'})} — {new Date(order.end_date).toLocaleDateString('ru-RU', {day: 'numeric', month: 'short'})}
+                            {new Date(firstItem.start_date).toLocaleDateString('ru-RU', {day: 'numeric', month: 'short'})} — {new Date(firstItem.end_date).toLocaleDateString('ru-RU', {day: 'numeric', month: 'short'})}
                          </span>
                        </div>
                        
@@ -337,7 +419,7 @@ function formatDatePill(dateStr) {
   return `${d.getDate()} ${months[d.getMonth()]}`;
 }
 
-function ProductPage({ product, onBack, onBook }) {
+function ProductPage({ product, onBack, onBook, onAddToCart }) {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [activeModal, setActiveModal] = useState(null);
@@ -493,17 +575,28 @@ function ProductPage({ product, onBack, onBook }) {
       {/* Sticky Book Button */}
       <div className="fixed bottom-0 left-0 w-full bg-surface-container-lowest/90 backdrop-blur-xl pt-3 pb-6 z-40">
          <div className="max-w-lg mx-auto px-6">
-            <button 
-              onClick={() => {
-                try { window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('medium'); } catch(e) {}
-                onBook({...product, startDate, endDate, days, total: days * product.price_per_day});
-              }}
-              disabled={days <= 0}
-              className={`w-full py-4.5 rounded-[1.5rem] font-bold text-[16px] transition-all duration-300 transform active:scale-[0.96] ${days > 0 ? "bg-primary-container text-primary hover:bg-primary-container/40" : "bg-surface-container text-on-surface-variant/60 cursor-not-allowed"}`}
-              style={{ padding: "18px" }}
-            >
-              Забронировать
-            </button>
+            <div className="flex gap-3">
+              <button 
+                onClick={() => {
+                  try { window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('medium'); } catch(e) {}
+                  onAddToCart && onAddToCart({...product, startDate, endDate, days, total: days * product.price_per_day});
+                }}
+                disabled={days <= 0}
+                className={`flex-1 py-4 rounded-[1.25rem] font-bold text-[15px] transition-all duration-300 transform active:scale-[0.96] ${days > 0 ? "bg-primary-container text-primary hover:bg-primary-container/40" : "bg-surface-container text-on-surface-variant/60 cursor-not-allowed"}`}
+              >
+                В корзину
+              </button>
+              <button 
+                onClick={() => {
+                  try { window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('medium'); } catch(e) {}
+                  onBook({...product, startDate, endDate, days, total: days * product.price_per_day});
+                }}
+                disabled={days <= 0}
+                className={`flex-1 py-4 rounded-[1.25rem] font-bold text-[15px] transition-all duration-300 transform active:scale-[0.96] ${days > 0 ? "bg-primary text-on-primary shadow-[0_8px_20px_rgba(59,130,246,0.3)]" : "bg-surface-container text-on-surface-variant/60 cursor-not-allowed"}`}
+              >
+                Забронировать
+              </button>
+            </div>
          </div>
       </div>
 
@@ -674,7 +767,8 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('catalog');
   const [selectedProductId, setSelectedProductId] = useState(null);
-  const [checkoutData, setCheckoutData] = useState(null);
+  const [checkoutItems, setCheckoutItems] = useState(null);
+  const [showCart, setShowCart] = useState(false);
   const [orders, setOrders] = useState([]);
   const [isOrdersLoading, setIsOrdersLoading] = useState(false);
   const [orderFilter, setOrderFilter] = useState('active');
@@ -683,6 +777,7 @@ export default function App() {
   const [sortBy, setSortBy] = useState('default');
   const { theme, toggleTheme } = useTheme();
   const { favorites, toggle: toggleFavorite, isFavorite } = useFavorites();
+  const { items, count, addItem, removeItem, clearCart } = useCart();
 
   useEffect(() => {
     if (window.Telegram && window.Telegram.WebApp) {
@@ -695,13 +790,15 @@ export default function App() {
     const tg = window.Telegram?.WebApp;
     if (!tg) return;
 
-    const canGoBack = selectedProductId !== null || checkoutData !== null || activeTab !== 'catalog';
+    const canGoBack = selectedProductId !== null || checkoutItems !== null || showCart || activeTab !== 'catalog';
 
     if (canGoBack) {
       tg.BackButton.show();
       const handleBack = () => {
-        if (checkoutData) {
-          setCheckoutData(null);
+        if (showCart) {
+          setShowCart(false);
+        } else if (checkoutItems) {
+          setCheckoutItems(null);
         } else if (selectedProductId) {
           setSelectedProductId(null);
         } else {
@@ -716,7 +813,7 @@ export default function App() {
     } else {
       tg.BackButton.hide();
     }
-  }, [selectedProductId, checkoutData, activeTab]);
+  }, [selectedProductId, checkoutItems, showCart, activeTab]);
 
   // Telegram Haptic on tab switch
   const haptic = (type = 'light') => {
@@ -786,12 +883,23 @@ export default function App() {
   };
 
   const handleBook = (bookingData) => {
-    setCheckoutData(bookingData);
+    setCheckoutItems([bookingData]);
+  };
+
+  const handleAddToCart = (product) => {
+    addItem(product);
+    try { window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('light'); } catch(e) {}
+  };
+
+  const handleCartCheckout = () => {
+    setCheckoutItems(items);
+    setShowCart(false);
   };
 
   const handleConfirmOrder = (orderResponse) => {
-    setCheckoutData(null);
+    setCheckoutItems(null);
     setSelectedProductId(null);
+    setShowCart(false);
     
     if (window.Telegram && window.Telegram.WebApp) {
       window.Telegram.WebApp.showAlert(`Заказ оформлен! Статус: ${orderResponse.status}`);
@@ -804,14 +912,18 @@ export default function App() {
     setActiveTab('bookings');
   };
 
-  if (checkoutData) {
-    return <CheckoutPage checkoutData={checkoutData} onBack={() => setCheckoutData(null)} onConfirm={handleConfirmOrder} />;
+  if (checkoutItems) {
+    return <CheckoutPage checkoutItems={checkoutItems} onBack={() => setCheckoutItems(null)} onConfirm={handleConfirmOrder} onClearCart={clearCart} />;
+  }
+
+  if (showCart) {
+    return <CartPage items={items} onBack={() => setShowCart(false)} onRemove={removeItem} onCheckout={handleCartCheckout} />;
   }
 
   if (selectedProductId) {
     const product = gear.find(g => g.id === selectedProductId) || FALLBACK_GEAR.find(g => g.id === selectedProductId);
     if (product) {
-      return <ProductPage product={product} onBack={() => setSelectedProductId(null)} onBook={handleBook} />;
+      return <ProductPage product={product} onBack={() => setSelectedProductId(null)} onBook={handleBook} onAddToCart={handleAddToCart} />;
     }
   }
 
@@ -832,8 +944,16 @@ export default function App() {
             >
               <span className="material-symbols-outlined text-primary">{theme === 'dark' ? 'light_mode' : 'dark_mode'}</span>
             </button>
-            <button className="w-10 h-10 rounded-full flex items-center justify-center bg-surface-container-low transition-all duration-300 transform active:scale-90 hover:bg-primary-container/20">
+            <button 
+              onClick={() => { try { window.Telegram?.WebApp?.HapticFeedback?.impactOccurred('light'); } catch(e) {} setShowCart(true); }}
+              className="relative w-10 h-10 rounded-full flex items-center justify-center bg-surface-container-low transition-all duration-300 transform active:scale-90 hover:bg-primary-container/20"
+            >
               <span className="material-symbols-outlined text-primary">shopping_bag</span>
+              {count > 0 && (
+                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-error text-on-error text-[10px] font-extrabold flex items-center justify-center">
+                  {count}
+                </span>
+              )}
             </button>
           </div>
         </div>
